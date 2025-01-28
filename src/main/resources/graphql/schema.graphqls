@@ -1,0 +1,5 @@
+scalar Object
+
+type Query{
+    ping: String!
+}
