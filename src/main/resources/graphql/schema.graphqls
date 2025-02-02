@@ -3,3 +3,16 @@ scalar Object
 type Query{
     ping: String!
 }
+
+type Subscription {
+    chat(chat : ChatInput!): ChatOutput
+}
+input ChatInput{
+    user: String!
+    message: String!
+}
+
+type ChatOutput{
+    user: String!
+    message: String!
+}
