@@ -5,14 +5,18 @@ type Query{
 }
 
 type Subscription {
-    chat(chat : ChatInput!): ChatOutput
+    messaging(chat : MessageInput!): MessageOutput
 }
-input ChatInput{
+input MessageInput{
     user: String!
     message: String!
+    timestamp: Float!
+    attachesType: String!
 }
 
-type ChatOutput{
+type MessageOutput{
     user: String!
     message: String!
+    timestamp: Float!
+    attachesType: String!
 }

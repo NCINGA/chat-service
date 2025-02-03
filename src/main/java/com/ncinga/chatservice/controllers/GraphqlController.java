@@ -1,6 +1,7 @@
 package com.ncinga.chatservice.controllers;
 
-import com.ncinga.chatservice.dto.Chat;
+import com.ncinga.chatservice.config.ChatSinkManager;
+import com.ncinga.chatservice.dto.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import reactor.core.publisher.Flux;
 
-import java.time.Duration;
-
 
 @Slf4j
 @CrossOrigin(origins = "*")
@@ -19,17 +18,16 @@ import java.time.Duration;
 @Controller
 public class GraphqlController {
 
+    private final ChatSinkManager<Message> chatSinkManager;
 
     @QueryMapping(name = "ping")
     public String ping() {
         return "Pong";
     }
 
-    @SubscriptionMapping(name = "chat")
-    public Flux<Chat> chat(@Argument Chat chat) {
-        return Flux.interval(Duration.ofSeconds(5)).flatMap(sequence -> {
-            return Flux.just(new Chat("AI", "Hi "+ chat.getUser() + " Test subscription "));
-        });
+    @SubscriptionMapping(name = "messaging")
+    public Flux<Message> messaging(@Argument Message message) {
+        return chatSinkManager.createChatFlow(message.getUser()).asFlux();
     }
 
 }
