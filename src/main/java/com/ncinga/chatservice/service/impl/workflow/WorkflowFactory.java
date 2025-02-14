@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class WorkflowFactory {
 
-    public static Workflow getWorkflow(Workflows workflow) throws IllegalAccessException {
-        if (workflow.equals(Workflows.RESET_PASSWORD)) {
+    public static Workflow getWorkflow(String workflow) throws IllegalAccessException {
+        if (workflow.equals(workflow)) {
             return new PasswordReset();
-        } else if (workflow.equals(Workflows.USER_ONBOARD)) {
+        } else if (workflow.equals(workflow)) {
             return new PasswordReset();
         }
         throw new IllegalAccessException("Workflow request error");

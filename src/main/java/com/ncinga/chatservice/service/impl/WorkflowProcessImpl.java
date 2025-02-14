@@ -17,7 +17,7 @@ public class WorkflowProcessImpl implements WorkflowProcess {
 
     @Override
     public Object test() throws IllegalAccessException {
-        Workflow workflow = WorkflowFactory.getWorkflow(Workflows.RESET_PASSWORD);
+        Workflow workflow = WorkflowFactory.getWorkflow("kk");
 //        Map<String, Object> questions = workflow.getQuestions();
 //        Map<String, Object> questionsWithAnswers = workflow.getQuestions();
 

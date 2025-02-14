@@ -2,9 +2,16 @@ package com.ncinga.chatservice.service.impl;
 
 
 import com.ncinga.chatservice.config.ChatSinkManager;
+import com.ncinga.chatservice.dto.LLMRequest;
+import com.ncinga.chatservice.dto.LLMResponse;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.service.ChatService;
-import com.ncinga.chatservice.service.impl.workflow.*;
+import com.ncinga.chatservice.service.LLMService;
+import com.ncinga.chatservice.service.impl.workflow.CommonPool;
+import com.ncinga.chatservice.service.impl.workflow.Dictionary;
+import com.ncinga.chatservice.service.impl.workflow.Workflow;
+import com.ncinga.chatservice.service.impl.workflow.WorkflowFactory;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ChatServiceImpl implements ChatService {
     private final ChatSinkManager<Message> chatSinkManager;
     private final CommonPool commonPool;
+    private final LLMService llmService;
 
 
     @Override
@@ -28,9 +36,6 @@ public class ChatServiceImpl implements ChatService {
         log.info("Chat message received from user: {}", message.getUser());
         AtomicInteger userIndex = commonPool.getUserIndex(message.getUser());
 
-        Workflow workflow = WorkflowFactory.getWorkflow(Workflows.RESET_PASSWORD);
-
-        List<String> questions = workflow.getQuestions();
         if (Dictionary.GREETS.contains(message.getMessage().toLowerCase())) {
             if (userIndex.get() == -1) {
                 userIndex.set(-2);
@@ -46,7 +51,13 @@ public class ChatServiceImpl implements ChatService {
                 return;
             }
         }
+        LLMRequest llmRequest = new LLMRequest(message.getUser(), message.getMessage());
+        LLMResponse response = llmService.detectIntent(llmRequest);
+        log.info("Intent : {}", response.getIntent());
+        Workflow workflow = WorkflowFactory.getWorkflow(response.getIntent());
+        List<String> questions = workflow.getQuestions();
         if (userIndex.get() == -2) {
+
             userIndex.set(0);
             sendQuestion(message.getUser(), userIndex.get(), questions);
             return;
