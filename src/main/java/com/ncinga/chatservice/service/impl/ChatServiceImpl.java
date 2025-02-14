@@ -27,7 +27,9 @@ public class ChatServiceImpl implements ChatService {
     public void sendMessage(Message message) throws IllegalAccessException, InterruptedException {
         log.info("Chat message received from user: {}", message.getUser());
         AtomicInteger userIndex = commonPool.getUserIndex(message.getUser());
+
         Workflow workflow = WorkflowFactory.getWorkflow(Workflows.RESET_PASSWORD);
+
         List<String> questions = workflow.getQuestions();
         if (Dictionary.GREETS.contains(message.getMessage().toLowerCase())) {
             if (userIndex.get() == -1) {
