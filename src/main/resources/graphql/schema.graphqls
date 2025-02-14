@@ -4,6 +4,14 @@ type Query{
     ping: String!
 }
 
+type Mutation{
+    deleteUser(userId: String): String!
+    resetPassword(userId: String!, newPassword: String!): String!
+    createUser(displayName: String!, mailNickname: String!, userPrincipalName: String!, password: String!): String!
+    unlockUser(userId: String!): String!
+    disableUser(userId: String!): String!
+}
+
 type Subscription {
     messaging(chat : MessageInput!): MessageOutput
 }
