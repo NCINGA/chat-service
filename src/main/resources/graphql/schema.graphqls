@@ -4,19 +4,24 @@ type Query{
     ping: String!
 }
 
-type Subscription {
-    messaging(chat : MessageInput!): MessageOutput
+type Mutation {
+    sendMessage(message : MessageInput): MessageOutput!
 }
+
+type Subscription {
+    subscription(message : MessageInput): MessageOutput
+}
+
 input MessageInput{
-    user: String!
-    message: String!
-    timestamp: Float!
-    attachesType: String!
+    user: String
+    message: String
+    timestamp: Float
+    inputType: String
 }
 
 type MessageOutput{
-    user: String!
-    message: String!
-    timestamp: Float!
-    attachesType: String!
+    user: String
+    message: String
+    timestamp: Float
+    inputType: String
 }
