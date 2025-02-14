@@ -10,21 +10,24 @@ type Mutation{
     createUser(displayName: String!, mailNickname: String!, userPrincipalName: String!, password: String!): String!
     unlockUser(userId: String!): String!
     disableUser(userId: String!): String!
+    sendMessage(message : MessageInput): MessageOutput!
+
 }
 
 type Subscription {
-    messaging(chat : MessageInput!): MessageOutput
+    subscription(message : MessageInput): MessageOutput
 }
+
 input MessageInput{
-    user: String!
-    message: String!
-    timestamp: Float!
-    attachesType: String!
+    user: String
+    message: String
+    timestamp: Float
+    inputType: String
 }
 
 type MessageOutput{
-    user: String!
-    message: String!
-    timestamp: Float!
-    attachesType: String!
+    user: String
+    message: String
+    timestamp: Float
+    inputType: String
 }

@@ -1,6 +1,7 @@
 package com.ncinga.chatservice.service;
 
-public interface ChatService {
+import com.ncinga.chatservice.dto.Message;
 
-    public void send();
+public interface ChatService {
+    public void sendMessage(Message message) throws IllegalAccessException, InterruptedException;
 }

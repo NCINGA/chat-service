@@ -17,4 +17,5 @@ public class ChatSinkManager<T> {
     public Sinks.Many<T> createChatFlow(String user) {
         return chatSink.computeIfAbsent(user, k -> Sinks.many().replay().all());
     }
+
 }
