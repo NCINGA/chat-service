@@ -1,5 +1,5 @@
 package com.ncinga.chatservice.service.impl;
-import com.ncinga.chatservice.service.JWTService;
+import com.ncinga.chatservice.service.JwtService;
 import com.ncinga.chatservice.service.PasswordResetService;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -15,9 +15,9 @@ import java.util.Map;
 public class PasswordResetServiceImpl implements PasswordResetService {
 
     private final RestTemplate restTemplate;
-    private final JWTService jwtService;
+    private final JwtService jwtService;
 
-    public PasswordResetServiceImpl(JWTService jwtService) {
+    public PasswordResetServiceImpl(JwtService jwtService) {
         this.jwtService = jwtService;
         CloseableHttpClient httpClient = HttpClients.createDefault();
         this.restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient));
@@ -25,7 +25,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
     public String resetPassword(String userId, String newPassword) {
         String url = "https://graph.microsoft.com/v1.0/users/" + userId;
-        String token = jwtService.generateJwtToken();
+        String token = jwtService.generateAzureADToken();
 
         // Headers
         HttpHeaders headers = new HttpHeaders();
