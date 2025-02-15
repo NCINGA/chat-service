@@ -39,7 +39,7 @@ public class GraphqlController {
 
     @SubscriptionMapping(name = "subscription")
     public Flux<Message> subscription(@Argument Message message) {
-        return chatSinkManager.createChatFlow(message.getUser()).asFlux();
+        return chatSinkManager.createChatFlow(message.getSession()).asFlux();
     }
 
     @MutationMapping(name = "deleteUser")

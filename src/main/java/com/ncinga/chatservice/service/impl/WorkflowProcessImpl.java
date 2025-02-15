@@ -1,25 +1,21 @@
 package com.ncinga.chatservice.service.impl;
 
-import com.ncinga.chatservice.service.WorkflowProcess;
-import com.ncinga.chatservice.service.impl.workflow.Workflow;
-import com.ncinga.chatservice.service.impl.workflow.WorkflowFactory;
-import com.ncinga.chatservice.service.impl.workflow.Workflows;
+import com.ncinga.chatservice.service.impl.workflow.IntentWorkflow;
+import com.ncinga.chatservice.service.impl.workflow.IntentFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 @Service
 @Slf4j
-public class WorkflowProcessImpl implements WorkflowProcess {
+public class WorkflowProcessImpl {
     private static final String INTENT = "CHANGE_PASSWORD";
 
 
-    @Override
+
     public Object test() throws IllegalAccessException {
-        Workflow workflow = WorkflowFactory.getWorkflow("kk");
-//        Map<String, Object> questions = workflow.getQuestions();
-//        Map<String, Object> questionsWithAnswers = workflow.getQuestions();
+        IntentWorkflow intentWorkflow = IntentFactory.getIntent("kk");
+//        Map<String, Object> questions = intentWorkflow.getQuestions();
+//        Map<String, Object> questionsWithAnswers = intentWorkflow.getQuestions();
 
 //        questions.forEach((question, value) -> {
 //            log.info("Question {} Value {} ", question, value);

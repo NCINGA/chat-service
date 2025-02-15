@@ -19,6 +19,7 @@ type Subscription {
 }
 
 input MessageInput{
+    session: String
     user: String
     message: String
     timestamp: Float
@@ -26,6 +27,7 @@ input MessageInput{
 }
 
 type MessageOutput{
+    session: String
     user: String
     message: String
     timestamp: Float

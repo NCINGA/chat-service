@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Message {
+    private String session;
     private String user;
     private String message;
     private long timestamp;

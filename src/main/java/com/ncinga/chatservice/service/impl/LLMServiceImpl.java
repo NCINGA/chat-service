@@ -7,10 +7,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -29,7 +26,7 @@ public class LLMServiceImpl implements LLMService {
         try {
             String url = server + "/intent/detect/";
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
+            headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "TmMxbmc0SDNscDM0MTI=");
             HttpEntity<LLMRequest> entity = new HttpEntity<>(request, headers);
             log.info("Request : {}", entity.getBody());
