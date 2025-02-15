@@ -22,4 +22,8 @@ public abstract class Dictionary {
     public static final String EMPLOYEE_ONBOARDING = "employee_onboarding";
     public static final String EMPLOYEE_OFFBOARDING = "employee_offboarding";
     public static final String GROUP_EMAIL_MANAGEMENT = "group_email_management";
+    public static final String TEXT = "text";
+    public static final String YES_NO = "yes_no";
+    public static final String YES = "yes";
+    public static final String NO = "no";
 }

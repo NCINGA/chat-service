@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ncinga.chatservice.service.impl.workflow.Dictionary.KB_ARTICLE_ASSISTANCE;
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
 
 @Service
 @Slf4j
@@ -30,6 +31,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatSinkManager<Message> chatSinkManager;
     private final CommonPool commonPool;
     private final LLMService llmService;
+
     private final PasswordResetService passwordResetService;
     private List<WorkFlowQuestion> questions = new ArrayList<>();
     AtomicReference<String> intent = new AtomicReference<>("");
@@ -45,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
                 String randomGreeting = Dictionary.GREETING_MESSAGE.get(
                         ThreadLocalRandom.current().nextInt(Dictionary.GREETING_MESSAGE.size())
                 );
-                sendQuestion(message.getSession(), randomGreeting);
+                sendQuestion(message.getSession(), randomGreeting, TEXT);
                 log.info("Greeting sent to user.");
                 return;
             } else {
@@ -65,10 +67,10 @@ public class ChatServiceImpl implements ChatService {
             }
             sessionIndex.set(0);
             WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), firstQuestion.getQuestion());
+            sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
             return;
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService);
         workflowProcess.execute(sessionIndex, message);
 
     }
@@ -77,8 +79,8 @@ public class ChatServiceImpl implements ChatService {
         commonPool.removeSessionData(session);
     }
 
-    private void sendQuestion(String session, String question) {
-        Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), "text");
+    private void sendQuestion(String session, String question, String type) {
+        Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), type);
         chatSinkManager.getChatSink().get(session).tryEmitNext(questionMessage);
         log.info("Sent question to {}: {}", session, question);
     }

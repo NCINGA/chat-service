@@ -1,12 +1,12 @@
 package com.ncinga.chatservice.service.impl.workflow;
 
-import com.ncinga.chatservice.dto.InputTypes;
 import com.ncinga.chatservice.dto.Message;
-import com.ncinga.chatservice.dto.RequiredTypes;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
 
 public class IllegalAccess implements IntentWorkflow {
     @Override
@@ -17,7 +17,7 @@ public class IllegalAccess implements IntentWorkflow {
     @Override
     public List<WorkFlowQuestion> getQuestions() {
         List<WorkFlowQuestion> questions = new ArrayList<>();
-        questions.add(new WorkFlowQuestion("I'm sorry, but I didn't quite understand your request. if you need to any assist say 'hi' ?", RequiredTypes.AUTHENTICATION, InputTypes.TEXT, -1, -1));
+        questions.add(new WorkFlowQuestion("I'm sorry, but I didn't quite understand your request. if you need to any assist say 'hi' ?", TEXT));
         return questions;
     }
 }
