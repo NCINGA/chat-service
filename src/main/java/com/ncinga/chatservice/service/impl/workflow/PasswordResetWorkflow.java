@@ -21,14 +21,19 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     private final CommonPool commonPool;
     private final List<WorkFlowQuestion> questions;
 
+    private String logUser = "123";
+    private String logPassword = "123";
+
     @Override
-    public void execute(AtomicInteger sessionIndex, Message message) throws IllegalAccessException {
+    public void execute(AtomicInteger sessionIndex, Message message) throws IllegalAccessException, InterruptedException {
         int index = sessionIndex.get();
+        WorkFlowQuestion nextQuestion;
         if (index >= questions.size() || index == -1) {
             log.info("All questions answered or session not started for user: {}", message.getSession());
             return;
         }
 
+        log.info("message : {}", message);
         commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
         commonPool.getUserResponses().get(message.getSession()).put(questions.get(index).getQuestion(), message.getMessage());
         commonPool.addQuestionWithAnswer(message.getSession(), String.valueOf(index), questions.get(index).getQuestion(), message.getMessage());
@@ -40,29 +45,62 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             } else if (message.getMessage().equalsIgnoreCase("no")) {
                 clearSession(message.getSession());
             }
-            WorkFlowQuestion nextQuestion;
-            nextQuestion = questions.get(sessionIndex.get());
-            if (!commonPool.hasQuestionBeenAsked(message.getSession(), nextQuestion.getQuestion())) {
-                sendQuestion(message.getSession(), nextQuestion.getQuestion());
-            } else {
-                sessionIndex.addAndGet(1);
+
+            if (sessionIndex.get() == 2) {
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion());
-
             }
+
+            if (sessionIndex.get() == 3) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion());
+            }
+
+            if (sessionIndex.get() == 4) {
+                sessionIndex.set(6);
+                nextQuestion = questions.get(sessionIndex.get());
+                sessionIndex.set(4);
+                Question username = commonPool.getAnswerForQuestion(message.getSession(), "2");
+                Question password = commonPool.getAnswerForQuestion(message.getSession(), "3");
+                log.info("user name and password {} ,{}", username.getAnswer(), password.getAnswer());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion());
+                if (commonPool.isAuthSuccess() == false && (username.getAnswer().equals(logUser) && password.getAnswer().equals(logPassword))) {
+                    log.info("Auth Success..");
+                    commonPool.setAuth(true);
+                    sessionIndex.set(7);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion());
+                    Thread.sleep(5000);
+                    sessionIndex.set(4);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion());
+                } else {
+                    log.info("Auth failed..");
+                    sessionIndex.set(8);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion());
+                    Thread.sleep(5000);
+                    sessionIndex.set(2);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion());
+                    commonPool.removeUserResponseData(message.getSession());
+                }
+            }
+
+
+            // if (!commonPool.hasQuestionBeenAsked(message.getSession(), nextQuestion.getQuestion())) {
+            //      sendQuestion(message.getSession(), nextQuestion.getQuestion());
+            // sessionIndex.incrementAndGet();
+//            } else {
+//                nextQuestion = questions.get(sessionIndex.get());
+//                sendQuestion(message.getSession(), nextQuestion.getQuestion());
+//            }
         } else {
             sendQuestion(message.getSession(), "Thank you! Please wait...");
             sendQuestion(message.getSession(), "Password has been changed successfully.");
             log.info("Process completed for session: {}", message.getSession());
             clearSessionWithSayThanks(message.getSession());
         }
-        Question username = commonPool.getAnswerForQuestion(message.getSession(), "2");
-        Question password = commonPool.getAnswerForQuestion(message.getSession(), "3");
-
-        if (username != null && username.getAnswer() != null && password != null && password.getAnswer() != null) {
-            log.info("Entered username and password: {}, {}", username.getAnswer(), password.getAnswer());
-        }
-
     }
 
     private void clearSession(String session) {
