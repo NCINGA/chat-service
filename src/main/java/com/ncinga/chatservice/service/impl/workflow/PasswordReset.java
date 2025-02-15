@@ -28,6 +28,7 @@ public class PasswordReset implements IntentWorkflow {
         questions.add(new WorkFlowQuestion("Authenticating Success", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         questions.add(new WorkFlowQuestion("Authenticating Failed", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         questions.add(new WorkFlowQuestion("Processing...", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
+        questions.add(new WorkFlowQuestion("Password has been changed....", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         return questions;
     }
 }

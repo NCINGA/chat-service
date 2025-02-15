@@ -17,7 +17,7 @@ public class IllegalAccess implements IntentWorkflow {
     @Override
     public List<WorkFlowQuestion> getQuestions() {
         List<WorkFlowQuestion> questions = new ArrayList<>();
-        questions.add(new WorkFlowQuestion("I'm sorry, but I didn't quite understand your request. if you need to any assets say 'hi' ?", RequiredTypes.AUTHENTICATION, InputTypes.TEXT, -1, -1));
+        questions.add(new WorkFlowQuestion("I'm sorry, but I didn't quite understand your request. if you need to any assist say 'hi' ?", RequiredTypes.AUTHENTICATION, InputTypes.TEXT, -1, -1));
         return questions;
     }
 }
