@@ -25,4 +25,7 @@ public interface JwtService {
     boolean isTokenExpired(String token);
 
     Key getKey();
+
+    String generateAzureADToken();
+
 }
