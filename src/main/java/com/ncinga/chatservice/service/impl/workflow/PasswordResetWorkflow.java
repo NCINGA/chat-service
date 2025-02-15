@@ -70,16 +70,12 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     sessionIndex.set(7);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion());
-                    Thread.sleep(5000);
                     sessionIndex.set(4);
-                    nextQuestion = questions.get(sessionIndex.get());
-                    sendQuestion(message.getSession(), nextQuestion.getQuestion());
                 } else {
                     log.info("Auth failed..");
                     sessionIndex.set(8);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion());
-                    Thread.sleep(5000);
                     sessionIndex.set(2);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion());
@@ -87,19 +83,23 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 }
             }
 
+            if (sessionIndex.get() == 4) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion());
+            }
 
-            // if (!commonPool.hasQuestionBeenAsked(message.getSession(), nextQuestion.getQuestion())) {
-            //      sendQuestion(message.getSession(), nextQuestion.getQuestion());
-            // sessionIndex.incrementAndGet();
-//            } else {
-//                nextQuestion = questions.get(sessionIndex.get());
-//                sendQuestion(message.getSession(), nextQuestion.getQuestion());
-//            }
-        } else {
-            sendQuestion(message.getSession(), "Thank you! Please wait...");
-            sendQuestion(message.getSession(), "Password has been changed successfully.");
-            log.info("Process completed for session: {}", message.getSession());
-            clearSessionWithSayThanks(message.getSession());
+            if (sessionIndex.get() == 5) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion());
+            }
+
+            if (sessionIndex.get() == 6) {
+                Question username = commonPool.getAnswerForQuestion(message.getSession(), "4");
+                Question password = commonPool.getAnswerForQuestion(message.getSession(), "5");
+                log.info("user name and password {} ,{}", username.getAnswer(), password.getAnswer());
+            }
+
+
         }
     }
 

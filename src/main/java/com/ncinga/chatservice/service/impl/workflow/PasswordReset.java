@@ -22,7 +22,7 @@ public class PasswordReset implements IntentWorkflow {
         questions.add(new WorkFlowQuestion("Thank You...", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         questions.add(new WorkFlowQuestion("Tell, me what is your username?", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         questions.add(new WorkFlowQuestion("What is your password ?", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
-        questions.add(new WorkFlowQuestion("Enter password change username ?", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
+        questions.add(new WorkFlowQuestion("Enter password change username : ", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         questions.add(new WorkFlowQuestion("Enter new password : ", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         questions.add(new WorkFlowQuestion("Authenticating......", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
         questions.add(new WorkFlowQuestion("Authenticating Success", RequiredTypes.NONE, InputTypes.TEXT, -1, -1));
