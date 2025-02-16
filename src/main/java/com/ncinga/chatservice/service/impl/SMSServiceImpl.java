@@ -1,8 +1,7 @@
 package com.ncinga.chatservice.service.impl;
 
-import com.ncinga.chatservice.dto.LLMRequest;
-import com.ncinga.chatservice.dto.LLMResponse;
-import com.ncinga.chatservice.service.LLMService;
+import com.ncinga.chatservice.service.SMSService;
+import com.ncinga.chatservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,33 +10,45 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class LLMServiceImpl implements LLMService {
-    @Value("${llm.external.url}")
-    private String server;
+@RequiredArgsConstructor
+public class SMSServiceImpl implements SMSService {
+    private final TokenService tokenService;
     private final RestTemplate restTemplate;
 
+    @Value("${sms.service.url}")
+    private String url;
+
     @Override
-    public LLMResponse detectIntent(LLMRequest request) {
+    public boolean send(String otp, String number) {
+        Object tokenResponse = tokenService.getAuthToken();
         try {
-            String url = server + "/intent/detect/";
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("phone_number", number);
+            payload.put("message_body", otp);
+
             HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth("test");
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", "TmMxbmc0SDNscDM0MTI=");
-            HttpEntity<LLMRequest> entity = new HttpEntity<>(request, headers);
+
+            HttpEntity<Object> entity = new HttpEntity<>(payload, headers);
             log.info("Request : {}", entity.getBody());
-            ResponseEntity<LLMResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, LLMResponse.class);
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
             log.info("Response : {}", response);
-            return response.getBody();
+            return true;
+
         } catch (RestClientException e) {
             log.error("Error during REST call: {}", e.getMessage());
-            return null;
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage());
-            return null;
         }
+
+
+        return false;
     }
 }
