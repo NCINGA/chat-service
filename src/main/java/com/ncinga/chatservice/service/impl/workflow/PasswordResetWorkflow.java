@@ -45,7 +45,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
         if (index + 1 < questions.size()) {
             sessionIndex.incrementAndGet();
-            if (message.getMessage().equalsIgnoreCase("ok")) {
+            if (message.getMessage().equalsIgnoreCase("yes")) {
                 sessionIndex.addAndGet(1);
             } else if (message.getMessage().equalsIgnoreCase("no")) {
                 clearSession(message.getSession());
@@ -107,6 +107,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.set(9);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), response, TEXT);
+                clearSessionWithSayThanks(message.getSession(), TEXT);
               //  sessionIndex.set(10);
             }
 
