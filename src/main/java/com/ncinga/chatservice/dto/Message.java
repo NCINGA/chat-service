@@ -11,4 +11,5 @@ public class Message {
     private String message;
     private long timestamp;
     private String inputType;
+    private Object args;
 }

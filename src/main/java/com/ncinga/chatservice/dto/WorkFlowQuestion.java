@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class WorkFlowQuestion {
     private String question;
     private String inputType;
+    private Object args;
 }

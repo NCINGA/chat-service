@@ -46,19 +46,24 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         if (index + 1 < questions.size()) {
             sessionIndex.incrementAndGet();
             if (message.getMessage().equalsIgnoreCase("yes")) {
-                sessionIndex.addAndGet(1);
+                sessionIndex.set(10);
             } else if (message.getMessage().equalsIgnoreCase("no")) {
                 clearSession(message.getSession());
             }
 
+            if (sessionIndex.get() == 10) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+            }
+
             if (sessionIndex.get() == 2) {
                 nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
             }
 
             if (sessionIndex.get() == 3) {
                 nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
             }
 
             if (sessionIndex.get() == 4) {
@@ -68,34 +73,34 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 Question username = commonPool.getAnswerForQuestion(message.getSession(), "2");
                 Question password = commonPool.getAnswerForQuestion(message.getSession(), "3");
                 log.info("user name and password {} ,{}", username.getAnswer(), password.getAnswer());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
                 if (commonPool.isAuthSuccess() == false && (username.getAnswer().equals(logUser) && password.getAnswer().equals(logPassword))) {
                     log.info("Auth Success..");
                     commonPool.setAuth(true);
                     sessionIndex.set(7);
                     nextQuestion = questions.get(sessionIndex.get());
-                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
                     sessionIndex.set(4);
                 } else {
                     log.info("Auth failed..");
                     sessionIndex.set(8);
                     nextQuestion = questions.get(sessionIndex.get());
-                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
                     sessionIndex.set(2);
                     nextQuestion = questions.get(sessionIndex.get());
-                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
                     commonPool.removeUserResponseData(message.getSession());
                 }
             }
 
             if (sessionIndex.get() == 4) {
                 nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
             }
 
             if (sessionIndex.get() == 5) {
                 nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
             }
 
             if (sessionIndex.get() == 6) {
@@ -106,7 +111,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
                 sessionIndex.set(9);
                 nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), response, TEXT);
+                sendQuestion(message.getSession(), response, TEXT, null);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
               //  sessionIndex.set(10);
             }
@@ -125,13 +130,13 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     }
 
     private void clearSessionWithSayThanks(String session, String type) {
-        Message questionMessage = new Message(session, Dictionary.AI, "Thank you...if you need to any assets say 'hi'", new Date().getTime(), type);
+        Message questionMessage = new Message(session, Dictionary.AI, "Thank you...if you need to any assets say 'hi'", new Date().getTime(), type, null);
         chatSinkManager.getChatSink().get(session).tryEmitNext(questionMessage);
         commonPool.removeSessionData(session);
     }
 
-    private void sendQuestion(String session, String question, String type) {
-        Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), type);
+    private void sendQuestion(String session, String question, String type, Object args) {
+        Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), type, args);
         chatSinkManager.getChatSink().get(session).tryEmitNext(questionMessage);
         log.info("Sent question to {}: {}", session, question);
     }

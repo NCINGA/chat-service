@@ -47,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
                 String randomGreeting = Dictionary.GREETING_MESSAGE.get(
                         ThreadLocalRandom.current().nextInt(Dictionary.GREETING_MESSAGE.size())
                 );
-                sendQuestion(message.getSession(), randomGreeting, TEXT);
+                sendQuestion(message.getSession(), randomGreeting, TEXT, message.getArgs());
                 log.info("Greeting sent to user.");
                 return;
             } else {
@@ -67,7 +67,7 @@ public class ChatServiceImpl implements ChatService {
             }
             sessionIndex.set(0);
             WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
+            sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), message.getArgs());
             return;
         }
         workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService);
@@ -79,8 +79,8 @@ public class ChatServiceImpl implements ChatService {
         commonPool.removeSessionData(session);
     }
 
-    private void sendQuestion(String session, String question, String type) {
-        Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), type);
+    private void sendQuestion(String session, String question, String type, Object args) {
+        Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), type, args);
         chatSinkManager.getChatSink().get(session).tryEmitNext(questionMessage);
         log.info("Sent question to {}: {}", session, question);
     }

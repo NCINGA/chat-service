@@ -32,6 +32,7 @@ input MessageInput{
     message: String
     timestamp: Float
     inputType: String
+    args: Object
 }
 
 type MessageOutput{
@@ -40,5 +41,6 @@ type MessageOutput{
     message: String
     timestamp: Float
     inputType: String
+    args: Object
 }
 

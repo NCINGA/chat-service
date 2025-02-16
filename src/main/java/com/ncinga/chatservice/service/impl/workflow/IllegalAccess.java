@@ -11,13 +11,13 @@ import static com.ncinga.chatservice.service.impl.workflow.Dictionary.PROBLEM;
 public class IllegalAccess implements IntentWorkflow {
     @Override
     public Message conversation(Message message) {
-        return new Message(null, null, null, 0, null);
+        return new Message(null, null, null, 0, null, null);
     }
 
     @Override
     public List<WorkFlowQuestion> getQuestions() {
         List<WorkFlowQuestion> questions = new ArrayList<>();
-        questions.add(new WorkFlowQuestion("I'm sorry, but I didn't quite understand your request. if you need to any assist say 'hi' ?", PROBLEM));
+        questions.add(new WorkFlowQuestion("I'm sorry, but I didn't quite understand your request. if you need to any assist say 'hi' ?", PROBLEM, null));
         return questions;
     }
 }

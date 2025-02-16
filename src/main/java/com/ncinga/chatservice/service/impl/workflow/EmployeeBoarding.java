@@ -11,13 +11,13 @@ import static com.ncinga.chatservice.service.impl.workflow.Dictionary.YES_NO;
 public class EmployeeBoarding implements IntentWorkflow {
     @Override
     public Message conversation(Message message) {
-        return new Message(null,null, null, 0, null);
+        return new Message(null,null, null, 0, null, null);
     }
 
     @Override
     public List<WorkFlowQuestion> getQuestions() {
         List<WorkFlowQuestion> questions = new ArrayList<>();
-        questions.add(new WorkFlowQuestion("Got it... To continue this process login is required", YES_NO));
+        questions.add(new WorkFlowQuestion("Got it... To continue this process login is required", YES_NO, null));
         return questions;
     }
 }
