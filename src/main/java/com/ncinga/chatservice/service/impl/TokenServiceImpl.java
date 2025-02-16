@@ -1,12 +1,15 @@
 package com.ncinga.chatservice.service.impl;
 
 import com.ncinga.chatservice.dto.TokenRequest;
+import com.ncinga.chatservice.dto.TokenResponse;
 import com.ncinga.chatservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,20 +36,20 @@ public class TokenServiceImpl implements TokenService {
     private static final String GRANT_TYPE = "password";
 
     @Override
-    public Object getAuthToken() {
+    public TokenResponse getAuthToken() {
         try {
             String url = server + "/realms/" + realm + "/protocol/openid-connect/token";
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            TokenRequest request = new TokenRequest();
-            request.setClientId(clientId);
-            request.setUsername(username);
-            request.setPassword(password);
-            request.setGrantType(GRANT_TYPE);
-            HttpEntity<Object> entity = new HttpEntity<>(request, headers);
+            MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+            formData.add("client_id", clientId);
+            formData.add("username", username);
+            formData.add("password", password);
+            formData.add("grant_type", GRANT_TYPE);
+            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(formData, headers);
             log.debug("Request : {}", entity.getBody());
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
+            ResponseEntity<TokenResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, TokenResponse.class);
             log.info("Response : {}", response);
             return response.getBody();
 
@@ -57,4 +60,5 @@ public class TokenServiceImpl implements TokenService {
         }
         return null;
     }
+
 }

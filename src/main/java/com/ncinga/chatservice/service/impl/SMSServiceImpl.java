@@ -1,5 +1,6 @@
 package com.ncinga.chatservice.service.impl;
 
+import com.ncinga.chatservice.dto.TokenResponse;
 import com.ncinga.chatservice.service.SMSService;
 import com.ncinga.chatservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +26,14 @@ public class SMSServiceImpl implements SMSService {
 
     @Override
     public boolean send(String otp, String number) {
-        Object tokenResponse = tokenService.getAuthToken();
         try {
-
+            TokenResponse tokenResponse = tokenService.getAuthToken();
             Map<String, Object> payload = new HashMap<>();
             payload.put("phone_number", number);
             payload.put("message_body", otp);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth("test");
+            headers.setBearerAuth(tokenResponse.getAccessToken());
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> entity = new HttpEntity<>(payload, headers);

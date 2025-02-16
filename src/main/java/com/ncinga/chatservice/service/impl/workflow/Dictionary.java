@@ -23,7 +23,7 @@ public abstract class Dictionary {
     public static final String EMPLOYEE_OFFBOARDING = "employee_offboarding";
     public static final String GROUP_EMAIL_MANAGEMENT = "group_email_management";
     public static final String TEXT = "text";
-    public static final String LIST = "LIST";
+    public static final String LIST = "list";
     public static final String PASSWORD = "password";
     public static final String PROBLEM = "problem";
     public static final String YES_NO = "yes_no";

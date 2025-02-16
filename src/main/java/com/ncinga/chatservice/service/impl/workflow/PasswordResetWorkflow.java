@@ -5,6 +5,7 @@ import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.Question;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
 import com.ncinga.chatservice.service.PasswordResetService;
+import com.ncinga.chatservice.service.SMSService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,23 +15,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.PROBLEM;
 import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PasswordResetWorkflow implements WorkflowProcess {
+    private static final String OTP_NUMBER = "7070";
     private final ChatSinkManager<Message> chatSinkManager;
     private final CommonPool commonPool;
     private final List<WorkFlowQuestion> questions;
     private final PasswordResetService passwordResetService;
+    private final SMSService smsService;
 
 
     private String logUser = "shehan";
     private String logPassword = "12345";
 
     @Override
-    public void execute(AtomicInteger sessionIndex, Message message) {
+    public void execute(AtomicInteger sessionIndex, Message message) throws InterruptedException {
         int index = sessionIndex.get();
         WorkFlowQuestion nextQuestion;
         if (index >= questions.size() || index == -1) {
@@ -46,15 +50,101 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         if (index + 1 < questions.size()) {
             sessionIndex.incrementAndGet();
             if (message.getMessage().equalsIgnoreCase("yes")) {
+                //admin flow
+                //sessionIndex.addAndGet(1);
                 sessionIndex.set(10);
             } else if (message.getMessage().equalsIgnoreCase("no")) {
                 clearSession(message.getSession());
             }
 
+            //update role base scenario
             if (sessionIndex.get() == 10) {
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+
             }
+
+            if (sessionIndex.get() == 11) {
+                Question role = commonPool.getAnswerForQuestion(message.getSession(), "10");
+                log.info("Selected role is {}", role.getAnswer());
+                nextQuestion = questions.get(sessionIndex.get());
+                sessionIndex.set(12);
+                sendQuestion(message.getSession(), nextQuestion.getQuestion() + role.getAnswer(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                if (role.getAnswer().equals("user")) {
+                    Thread.sleep(1000);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                    sessionIndex.set(13);
+                    Thread.sleep(1000);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                }
+            }
+
+            if (sessionIndex.get() == 14) {
+                Question mobileNumber = commonPool.getAnswerForQuestion(message.getSession(), "13");
+                nextQuestion = questions.get(sessionIndex.get());
+                sessionIndex.set(15);
+                log.info("Given mobile number {}", mobileNumber.getAnswer());
+                smsService.send(mobileNumber.getAnswer(), OTP_NUMBER);
+                sendQuestion(message.getSession(), nextQuestion.getQuestion() + mobileNumber.getAnswer(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                Thread.sleep(1000);
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                sessionIndex.set(16);
+                Thread.sleep(1000);
+            }
+
+
+            if (sessionIndex.get() == 16) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+            }
+
+            if (sessionIndex.get() == 17) {
+                Question otp = commonPool.getAnswerForQuestion(message.getSession(), "16");
+                if (otp.getAnswer().equals(OTP_NUMBER)) {
+                    log.info("OTP verify success");
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                    sessionIndex.set(19);
+
+                } else {
+                    sessionIndex.set(18);
+                    log.info("OTP verification failed");
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                    Thread.sleep(1000);
+                    sessionIndex.set(16);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                    commonPool.removeQuestion(message.getSession(), "16");
+                }
+
+            }
+
+            if (sessionIndex.get() == 19) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+            }
+
+            if (sessionIndex.get() == 20) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+            }
+
+            if (sessionIndex.get() == 21) {
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+                Question username = commonPool.getAnswerForQuestion(message.getSession(), "19");
+                Question password = commonPool.getAnswerForQuestion(message.getSession(), "20");
+                log.info("user name and password is {} {}", username.getAnswer(), password.getAnswer());
+                String response = passwordResetService.resetPassword(username.getAnswer(), password.getAnswer());
+                sendQuestion(message.getSession(), response, TEXT, null);
+                clearSessionWithSayThanks(message.getSession(), TEXT);
+            }
+
+            log.info("sessionIndex {}", sessionIndex);
 
             if (sessionIndex.get() == 2) {
                 nextQuestion = questions.get(sessionIndex.get());

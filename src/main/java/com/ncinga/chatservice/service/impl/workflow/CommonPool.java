@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 @Data
 @Slf4j
@@ -35,6 +32,19 @@ public class CommonPool {
         List<Question> questions = userQuestions.computeIfAbsent(questionId, k -> new ArrayList<>());
         questions.add(new Question(questionId, question, answer));
     }
+
+    public void removeQuestion(String session, String questionId) {
+        log.info("Removing question for user '{}': questionId = '{}'", session, questionId);
+        Optional.ofNullable(questionPool.get(session))
+                .ifPresent(userQuestions -> {
+                    userQuestions.remove(questionId);
+                    if (userQuestions.isEmpty()) {
+                        questionPool.remove(session);
+                    }
+                });
+        log.info("Updated question pool for session '{}': {}", session, questionPool.get(session));
+    }
+
 
     public boolean hasQuestionBeenAsked(String session, String question) {
         log.info("Checking if question '{}' has been asked for session '{}'", question, session);
