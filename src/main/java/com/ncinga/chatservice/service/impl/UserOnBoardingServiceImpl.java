@@ -21,7 +21,7 @@ public class UserOnBoardingServiceImpl implements UserOnBoardingService {
         this.jwtService = jwtService;
     }
 
-    public String createUser(String displayName, String mailNickname, String userPrincipalName, String password) {
+    public String createUser(String displayName, String mailNickname, String userPrincipalName, String password, String mobilePhone) {
 
         String token = jwtService.generateAzureADToken();
         String url = "https://graph.microsoft.com/v1.0/users";
@@ -40,7 +40,9 @@ public class UserOnBoardingServiceImpl implements UserOnBoardingService {
                     displayName,
                     mailNickname,
                     userPrincipalName,
+                    mobilePhone,
                     passwordProfile
+
             );
 
             // Convert the request body to JSON for logging

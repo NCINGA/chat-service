@@ -1,8 +1,9 @@
 package com.ncinga.chatservice.controllers;
 
 import com.ncinga.chatservice.config.ChatSinkManager;
+import com.ncinga.chatservice.dto.AzureUserDto;
 import com.ncinga.chatservice.dto.Message;
-import com.ncinga.chatservice.service.ChatService;
+import com.ncinga.chatservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -12,11 +13,9 @@ import org.springframework.graphql.data.method.annotation.SubscriptionMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import reactor.core.publisher.Flux;
-import com.ncinga.chatservice.service.UnlockUserService;
-import com.ncinga.chatservice.service.UserOffBoardingService;
-import com.ncinga.chatservice.service.PasswordResetService;
-import com.ncinga.chatservice.service.UserOnBoardingService;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 
 @Slf4j
@@ -31,10 +30,21 @@ public class GraphqlController {
     private final UserOnBoardingService userOnBoardingService;
     private final UnlockUserService unlockUserService;
     private final ChatService chatService;
+    private final GetUserByEmailService getUserByEmailService;
 
     @QueryMapping(name = "ping")
     public String ping() {
         return "Pong";
+    }
+
+    @QueryMapping(name = "getUserByEmail")
+    public AzureUserDto getUserByEmail(@Argument String email) {
+        return getUserByEmailService.getUserByEmail(email);
+    }
+
+    @QueryMapping(name = "doesUserExist")
+    public boolean doesUserExist(@Argument String email) {
+        return getUserByEmailService.doesUserExist(email);
     }
 
     @SubscriptionMapping(name = "subscription")
@@ -48,13 +58,13 @@ public class GraphqlController {
     }
 
     @MutationMapping(name = "resetPassword")
-    public String resetPassword(@Argument String userId, @Argument String newPassword) {
-        return passwordResetService.resetPassword(userId, newPassword);
+    public String resetPassword(@Argument String userId) {
+        return passwordResetService.resetPassword(userId);
     }
 
     @MutationMapping(name = "createUser")
-    public String createUser(@Argument String displayName, @Argument String mailNickname, @Argument String userPrincipalName, @Argument String password) {
-        return userOnBoardingService.createUser(displayName, mailNickname, userPrincipalName, password);
+    public String createUser(@Argument String displayName, @Argument String mailNickname, @Argument String userPrincipalName, @Argument String password, @Argument String mobilePhone) {
+        return userOnBoardingService.createUser(displayName, mailNickname, userPrincipalName, password, mobilePhone);
     }
 
     @MutationMapping(name = "unlockUser")
