@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ncinga.chatservice.service.impl.workflow.Dictionary.PROBLEM;
 import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
 
 @Service
@@ -145,7 +144,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             }
 
             log.info("sessionIndex {}", sessionIndex);
-
+///////////////////////// end admin flow
             if (sessionIndex.get() == 2) {
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());

@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 @Slf4j
@@ -24,13 +25,24 @@ public class SMSServiceImpl implements SMSService {
     @Value("${sms.service.url}")
     private String url;
 
+
+    public static String generateOTP() {
+        String numbers = "1234567890";
+        Random random = new Random();
+        char[] otp = new char[4];
+        for(int i = 0; i< 4 ; i++) {
+            otp[i] = numbers.charAt(random.nextInt(numbers.length()));
+        }
+        return String.valueOf(otp);
+    }
     @Override
     public boolean send(String otp, String number) {
         try {
             TokenResponse tokenResponse = tokenService.getAuthToken();
             Map<String, Object> payload = new HashMap<>();
-            payload.put("phone_number", number);
-            payload.put("message_body", otp);
+            String otpMessage  = "Your OTP is " + number;
+            payload.put("phone_number", otp);
+            payload.put("message_body", otpMessage);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(tokenResponse.getAccessToken());
