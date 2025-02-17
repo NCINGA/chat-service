@@ -5,5 +5,5 @@ import com.ncinga.chatservice.dto.Message;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public interface WorkflowProcess {
-    public void execute(AtomicInteger sessionIndex, Message message) throws IllegalAccessException;
+    public void execute(AtomicInteger sessionIndex, Message message) throws IllegalAccessException, InterruptedException;
 }

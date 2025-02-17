@@ -20,6 +20,14 @@ type Subscription {
     subscription(message : MessageInput): MessageOutput
 }
 
+enum InputTypes {
+    YES_NO
+    YES
+    OK
+    EXIT
+    TEXT
+}
+
 input MessageInput{
     session: String
     user: String

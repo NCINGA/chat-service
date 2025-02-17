@@ -18,6 +18,12 @@ public class CommonPool {
     private final Map<String, Map<String, List<Question>>> questionPool = new HashMap<>();
     private final Map<String, AtomicInteger> sessionIndices = new HashMap<>();
     private final Map<String, Map<String, String>> userResponses = new HashMap<>();
+    private boolean authSuccess = false;
+
+
+    public void setAuth(boolean auth) {
+        authSuccess = auth;
+    }
 
     public AtomicInteger getSessionIndex(String session) {
         return sessionIndices.computeIfAbsent(session, k -> new AtomicInteger(-1));
@@ -69,6 +75,13 @@ public class CommonPool {
         return null;
     }
 
+    public void removeUserResponseData(String session) {
+        if (questionPool.containsKey(session)) {
+            questionPool.remove(session);
+            log.info("Removed question data for session: {}", session);
+        }
+    }
+
     public void removeSessionData(String session) {
         if (questionPool.containsKey(session)) {
             questionPool.remove(session);
@@ -82,6 +95,7 @@ public class CommonPool {
             userResponses.remove(session);
             log.info("Removed user responses for session: {}", session);
         }
+        authSuccess = false;
     }
 
     public void clearAllSessions() {

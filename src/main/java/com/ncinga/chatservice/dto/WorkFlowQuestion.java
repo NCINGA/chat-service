@@ -9,8 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WorkFlowQuestion {
     private String question;
-    private RequiredTypes requiredType;
-    private InputTypes inputType;
-    private int whenTrueQuestionId;
-    private int whenFalseQuestionId;
+    private String inputType;
 }
