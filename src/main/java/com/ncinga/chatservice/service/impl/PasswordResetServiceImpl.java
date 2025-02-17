@@ -38,7 +38,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         // Body
         Map<String, Object> passwordProfile = new HashMap<>();
         passwordProfile.put("password", newPassword);
-        passwordProfile.put("forceChangePasswordNextSignIn", false);
+        passwordProfile.put("forceChangePasswordNextSignIn", true);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("passwordProfile", passwordProfile);

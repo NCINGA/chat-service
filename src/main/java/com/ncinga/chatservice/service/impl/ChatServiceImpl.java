@@ -69,7 +69,7 @@ public class ChatServiceImpl implements ChatService {
             }
             sessionIndex.set(0);
             WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), message.getArgs());
+            sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), firstQuestion.getArgs());
             return;
         }
         workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService);
