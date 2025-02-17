@@ -1,6 +1,6 @@
 package com.ncinga.chatservice.service.impl;
 
-import com.ncinga.chatservice.service.JWTService;
+import com.ncinga.chatservice.service.JwtService;
 import com.ncinga.chatservice.service.UserOffBoardingService;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -13,9 +13,9 @@ import org.springframework.web.client.RestTemplate;
 public class UserOffBoardingServiceImpl implements UserOffBoardingService {
 
     private final RestTemplate restTemplate;
-    private final JWTService jwtService;
+    private final JwtService jwtService;
 
-    public UserOffBoardingServiceImpl(JWTService jwtService) {
+    public UserOffBoardingServiceImpl(JwtService jwtService) {
         this.jwtService = jwtService;
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -24,7 +24,7 @@ public class UserOffBoardingServiceImpl implements UserOffBoardingService {
 
     public String deleteUser(String userId) {
         String url = "https://graph.microsoft.com/v1.0/users/" + userId;
-        String token = jwtService.generateJwtToken();
+        String token = jwtService.generateAzureADToken();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
@@ -42,7 +42,7 @@ public class UserOffBoardingServiceImpl implements UserOffBoardingService {
 
     public String disableUser(String userId) {
         String url = "https://graph.microsoft.com/v1.0/users/" + userId;
-        String token = jwtService.generateJwtToken();
+        String token = jwtService.generateAzureADToken();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         headers.setContentType(MediaType.APPLICATION_JSON);

@@ -15,6 +15,7 @@ public class UserRequestDto {
     private String displayName;
     private String mailNickname;
     private String userPrincipalName;
+    private String mobilePhone;
 
     @JsonProperty("passwordProfile")
     private Map<String, Object> passwordProfile;

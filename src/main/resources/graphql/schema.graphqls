@@ -2,12 +2,14 @@ scalar Object
 
 type Query{
     ping: String!
+    getUserByEmail(email: String!): AzureUser
+    doesUserExist(email: String!): Boolean
 }
 
 type Mutation{
     deleteUser(userId: String): String!
-    resetPassword(userId: String!, newPassword: String!): String!
-    createUser(displayName: String!, mailNickname: String!, userPrincipalName: String!, password: String!): String!
+    resetPassword(userId: String!): String!
+    createUser(displayName: String!, mailNickname: String!, userPrincipalName: String!, mobilePhone: String!, password: String!): String!
     unlockUser(userId: String!): String!
     disableUser(userId: String!): String!
     sendMessage(message : MessageInput): MessageOutput!
@@ -37,3 +39,16 @@ type MessageOutput{
     args: Object
 }
 
+type AzureUser{
+
+    displayName: String
+    givenName: String
+    surname: String
+    jobTitle: String
+    mail: String
+    mobilePhone: String
+    officeLocation: String
+    userPrincipalName: String
+    id: String
+
+}
