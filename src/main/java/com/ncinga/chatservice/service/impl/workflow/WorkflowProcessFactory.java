@@ -3,6 +3,8 @@ package com.ncinga.chatservice.service.impl.workflow;
 import com.ncinga.chatservice.config.ChatSinkManager;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
+import com.ncinga.chatservice.service.GetUserByEmailService;
+import com.ncinga.chatservice.service.OTPGenerateService;
 import com.ncinga.chatservice.service.PasswordResetService;
 import com.ncinga.chatservice.service.SMSService;
 
@@ -13,9 +15,9 @@ import static com.ncinga.chatservice.service.impl.workflow.Dictionary.RESET_PASS
 
 public class WorkflowProcessFactory {
 
-    public static WorkflowProcess getWorkflowProcess(String workflow, ChatSinkManager<Message> chatSinkManager, CommonPool commonPool, List<WorkFlowQuestion> questions, PasswordResetService passwordResetService, SMSService smsService) throws IllegalAccessException {
+    public static WorkflowProcess getWorkflowProcess(String workflow, ChatSinkManager<Message> chatSinkManager, CommonPool commonPool, List<WorkFlowQuestion> questions, PasswordResetService passwordResetService, SMSService smsService, GetUserByEmailService getUserByEmailService, OTPGenerateService otpGenerateService) throws IllegalAccessException {
         if (RESET_PASSWORD.equalsIgnoreCase(workflow)) {
-            return new PasswordResetWorkflow(chatSinkManager, commonPool, questions, passwordResetService, smsService);
+            return new PasswordResetWorkflow(chatSinkManager, commonPool, questions, passwordResetService, getUserByEmailService, smsService, otpGenerateService);
         } else if (EMPLOYEE_ONBOARDING.equalsIgnoreCase(workflow)) {
             return null;
         }

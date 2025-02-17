@@ -55,6 +55,12 @@ public class PasswordReset implements IntentWorkflow {
         questions.add(new WorkFlowQuestion("Please enter the registered email address associated with your Microsoft account.", TEXT, null));
         questions.add(new WorkFlowQuestion("Please confirm if this is correct  ", YES_NO, null));
         questions.add(new WorkFlowQuestion("An OTP has been sent to your registered mobile number. Please enter the 4-digit OTP to verify your identity.", TEXT, null));
+        questions.add(new WorkFlowQuestion("OTP is wrong please check : ", PROBLEM, null));
+        questions.add(new WorkFlowQuestion("Your identity has been verified. Your new temporary password has been generated : ", TEXT, null));
+        questions.add(new WorkFlowQuestion("Please use this password to log in to your Microsoft account. For security reasons, you will be required to change your password upon first login.\n" +
+                "Your password has been successfully reset! Would you like to reset another password?", YES_NO, null));
+
+
         questions.add(new WorkFlowQuestion("Enter password change username : ", TEXT, null));
         questions.add(new WorkFlowQuestion("Enter new password : ", PASSWORD, null));
         questions.add(new WorkFlowQuestion("Authenticating......", TEXT, null));

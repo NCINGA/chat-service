@@ -29,7 +29,9 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/auth/**",
-                                "/role/**"
+                                "/role/**",
+                                "/graphql/**",
+                                "/ws/**"
                         )
                         .permitAll()
                         .anyRequest()

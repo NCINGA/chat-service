@@ -15,12 +15,32 @@ public class CommonPool {
     private final Map<String, Map<String, List<Question>>> questionPool = new HashMap<>();
     private final Map<String, AtomicInteger> sessionIndices = new HashMap<>();
     private final Map<String, Map<String, String>> userResponses = new HashMap<>();
+    private final Map<String, String> userOTPPool = new HashMap<>();
     private boolean authSuccess = false;
 
 
     public void setAuth(boolean auth) {
         authSuccess = auth;
     }
+
+    public void addOTP(String session, String otp) {
+        log.info("Adding OTP for session '{}': otp = '{}'", session, otp);
+        userOTPPool.put(session, otp);
+    }
+
+    public String getOTP(String session) {
+        String otp = userOTPPool.get(session);
+        log.info("session id {}, OTP {}", session, otp);
+        return otp;
+    }
+
+    public void removeOTP(String session) {
+        if (userOTPPool.containsKey(session)) {
+            userOTPPool.remove(session);
+            log.info("Removed OTP for session '{}'", session);
+        }
+    }
+
 
     public AtomicInteger getSessionIndex(String session) {
         return sessionIndices.computeIfAbsent(session, k -> new AtomicInteger(-1));

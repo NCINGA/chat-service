@@ -52,7 +52,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, String.class);
             log.info("response {}", response);
-            return "Success your password :" + newPassword;
+            return newPassword;
         } catch (Exception e) {
             log.error("error {}", e.getMessage());
             return "Opps !!! something happened wrong!!";

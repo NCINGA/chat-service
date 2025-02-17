@@ -36,12 +36,12 @@ public class SMSServiceImpl implements SMSService {
         return String.valueOf(otp);
     }
     @Override
-    public boolean send(String otp, String number) {
+    public boolean send(String number, String otp) {
         try {
             TokenResponse tokenResponse = tokenService.getAuthToken();
             Map<String, Object> payload = new HashMap<>();
-            String otpMessage  = "Your OTP is " + number;
-            payload.put("phone_number", otp);
+            String otpMessage  = "Your OTP is " + otp;
+            payload.put("phone_number", number);
             payload.put("message_body", otpMessage);
 
             HttpHeaders headers = new HttpHeaders();

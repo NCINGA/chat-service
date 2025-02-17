@@ -6,10 +6,7 @@ import com.ncinga.chatservice.dto.LLMRequest;
 import com.ncinga.chatservice.dto.LLMResponse;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
-import com.ncinga.chatservice.service.ChatService;
-import com.ncinga.chatservice.service.LLMService;
-import com.ncinga.chatservice.service.PasswordResetService;
-import com.ncinga.chatservice.service.SMSService;
+import com.ncinga.chatservice.service.*;
 import com.ncinga.chatservice.service.impl.workflow.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +32,9 @@ public class ChatServiceImpl implements ChatService {
 
     private final SMSService smsService;
     private final PasswordResetService passwordResetService;
+    private final OTPGenerateService otpGenerateService;
     private List<WorkFlowQuestion> questions = new ArrayList<>();
+    private final GetUserByEmailService getUserByEmailService;
     AtomicReference<String> intent = new AtomicReference<>("");
 
     @Override
@@ -72,7 +71,7 @@ public class ChatServiceImpl implements ChatService {
             sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), firstQuestion.getArgs());
             return;
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService);
         workflowProcess.execute(sessionIndex, message);
 
     }
