@@ -58,7 +58,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             if (message.getMessage().equalsIgnoreCase("admin")) {
                 sessionIndex.set(8);
             } else if (message.getMessage().equalsIgnoreCase("user")) {
-                sessionIndex.set(0);
+                sessionIndex.set(1);
             }
         }
 
