@@ -2,6 +2,7 @@ package com.ncinga.chatservice.service.impl;
 
 import com.ncinga.chatservice.document.User;
 import com.ncinga.chatservice.dto.AuthenticateDto;
+import com.ncinga.chatservice.dto.RegisterDto;
 import com.ncinga.chatservice.dto.SuccessAuthenticateDto;
 import com.ncinga.chatservice.repository.RoleRepository;
 import com.ncinga.chatservice.repository.UserRepository;
@@ -14,6 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,9 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
 
     private final BCryptPasswordEncoder encoder;
+
+
+//    private final MyUserDetailsService myUserDetailsService;
 
     @Override
     public SuccessAuthenticateDto login(AuthenticateDto authenticateDto) throws Exception {
@@ -72,5 +79,20 @@ public class UserServiceImpl implements UserService {
     public User register(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
         return userRepository.save(user);
+    }
+
+    @Override
+    public Object findByRole(String email, String password, String userRole) {
+        return userRepository.findByEmail(email)
+                .map(user -> {
+                    if (!user.getPassword().equals(password)) {
+                        return "Incorrect credentials";
+                    }
+                    if (!user.getRole().equalsIgnoreCase(userRole)) {
+                        return "Incorrect credentials";
+                    }
+                    return user;
+                })
+                .orElse("Incorrect credentials");
     }
 }
