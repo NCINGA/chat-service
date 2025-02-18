@@ -43,7 +43,7 @@ public class ChatServiceImpl implements ChatService {
         AtomicInteger sessionIndex = commonPool.getSessionIndex(message.getSession());
         WorkflowProcess workflowProcess = null;
         if (Dictionary.GREETS.contains(message.getMessage().toLowerCase())) {
-            if (sessionIndex.get() == -1) {
+           // if (sessionIndex.get() == -1) {
                 sessionIndex.set(-2);
                 String randomGreeting = Dictionary.GREETING_MESSAGE.get(
                         ThreadLocalRandom.current().nextInt(Dictionary.GREETING_MESSAGE.size())
@@ -51,10 +51,10 @@ public class ChatServiceImpl implements ChatService {
                 sendQuestion(message.getSession(), randomGreeting, TEXT, message.getArgs());
                 log.info("Greeting sent to user.");
                 return;
-            } else {
-                log.info("User already in conversation, ignoring duplicate 'hi'.");
-                return;
-            }
+//            } else {
+//                log.info("User already in conversation, ignoring duplicate 'hi'.");
+//                return;
+//            }
         }
 
         if (sessionIndex.get() == -2) {
@@ -71,9 +71,8 @@ public class ChatServiceImpl implements ChatService {
             sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), firstQuestion.getArgs());
             return;
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService);
-        workflowProcess.execute(sessionIndex, message);
-
+            workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService);
+            workflowProcess.execute(sessionIndex, message);
     }
 
     private void clearSession(String session) {
