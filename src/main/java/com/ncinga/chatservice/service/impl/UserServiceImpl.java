@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder encoder;
 
 
+
 //    private final MyUserDetailsService myUserDetailsService;
 
     @Override
@@ -83,9 +84,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object findByRole(String email, String password, String userRole) {
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
         return userRepository.findByEmail(email)
                 .map(user -> {
-                    if (!user.getPassword().equals(password)) {
+                    if (!passwordEncoder.matches(password, user.getPassword())) {
                         return "Incorrect credentials";
                     }
                     if (!user.getRole().equalsIgnoreCase(userRole)) {
