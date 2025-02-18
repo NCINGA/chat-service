@@ -29,12 +29,12 @@ public class ChatServiceImpl implements ChatService {
     private final ChatSinkManager<Message> chatSinkManager;
     private final CommonPool commonPool;
     private final LLMService llmService;
-
     private final SMSService smsService;
     private final PasswordResetService passwordResetService;
     private final OTPGenerateService otpGenerateService;
     private List<WorkFlowQuestion> questions = new ArrayList<>();
     private final GetUserByEmailService getUserByEmailService;
+    private final UserService userService;
     AtomicReference<String> intent = new AtomicReference<>("");
 
     @Override
@@ -71,8 +71,8 @@ public class ChatServiceImpl implements ChatService {
             sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), firstQuestion.getArgs());
             return;
         }
-            workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService);
-            workflowProcess.execute(sessionIndex, message);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService, userService);
+        workflowProcess.execute(sessionIndex, message);
     }
 
     private void clearSession(String session) {

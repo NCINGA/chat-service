@@ -2,7 +2,6 @@ package com.ncinga.chatservice.service;
 
 import com.ncinga.chatservice.document.User;
 import com.ncinga.chatservice.dto.AuthenticateDto;
-import com.ncinga.chatservice.dto.RegisterDto;
 import com.ncinga.chatservice.dto.SuccessAuthenticateDto;
 
 public interface UserService {
@@ -10,5 +9,5 @@ public interface UserService {
 
     User register(User user);
 
-    Object findByRole(String email,String password,String userRole);
+    boolean findByRole(String email,String password,String userRole);
 }

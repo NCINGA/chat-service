@@ -5,10 +5,7 @@ import com.ncinga.chatservice.dto.AzureUserDto;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.Question;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
-import com.ncinga.chatservice.service.GetUserByEmailService;
-import com.ncinga.chatservice.service.OTPGenerateService;
-import com.ncinga.chatservice.service.PasswordResetService;
-import com.ncinga.chatservice.service.SMSService;
+import com.ncinga.chatservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,10 +29,8 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     private final GetUserByEmailService getUserByEmailService;
     private final SMSService smsService;
     private final OTPGenerateService otpGenerateService;
+   private final UserService userService;
 
-
-    private String logUser = "shehan";
-    private String logPassword = "12345";
 
 
     @Override
@@ -166,7 +161,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
             Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
             log.info("admin username {}, password {}", username.getAnswer(), password.getAnswer());
-            if (username.getAnswer().equals(logUser) && password.getAnswer().equals(logPassword)) {
+            boolean user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
+            log.info("admin user {}", user);
+            if (user) {
                 log.info("authenticate success...");
                 sessionIndex.set(11);
                 nextQuestion = questions.get(sessionIndex.get());
