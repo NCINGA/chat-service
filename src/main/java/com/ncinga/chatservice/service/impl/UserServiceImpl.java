@@ -78,9 +78,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean findByRole(String email, String password, String userRole) {
-        return userRepository.getUserByEmailAndPasswordAndRole(email , userRole)
-                .map(user -> encoder.matches(password, user.getPassword()))
-                .orElse(false);
+    public User findByRole(String email, String password, String userRole) {
+        return userRepository.getUserByEmailAndPasswordAndRole(email, userRole)
+                .filter(user -> encoder.matches(password, user.getPassword()))
+                .orElse(null);
     }
+
 }

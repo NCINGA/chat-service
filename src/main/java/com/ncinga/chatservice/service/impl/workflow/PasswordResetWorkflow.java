@@ -1,6 +1,7 @@
 package com.ncinga.chatservice.service.impl.workflow;
 
 import com.ncinga.chatservice.config.ChatSinkManager;
+import com.ncinga.chatservice.document.User;
 import com.ncinga.chatservice.dto.AzureUserDto;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.Question;
@@ -37,9 +38,12 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     public void execute(AtomicInteger sessionIndex, Message message) throws InterruptedException {
         int index = sessionIndex.get();
         WorkFlowQuestion nextQuestion;
-        if (index >= questions.size() || index == -1) {
-            log.info("All questions answered or session not started for user: {}", message.getSession());
-            return;
+
+        if (index == -1) {
+            commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
+            commonPool.removeSessionData(message.getSession());
+            sessionIndex.set(1);
+            log.info("New session started for user: {}", message.getSession());
         }
 
         log.info("message : {}", message);
@@ -127,7 +131,6 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             nextQuestion = questions.get(sessionIndex.get());
             sendQuestion(message.getSession(), nextQuestion.getQuestion() + newPassword, nextQuestion.getInputType(), nextQuestion.getArgs());
             sessionIndex.set(6);
-            Thread.sleep(1000);
             nextQuestion = questions.get(sessionIndex.get());
             sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
         }
@@ -138,7 +141,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 commonPool.removeOTP(message.getSession());
                 commonPool.removeUserResponseData(message.getSession());
                 commonPool.removeOTP(message.getSession());
-                sessionIndex.set(1);
+                sessionIndex.set(0);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
             } else {
@@ -161,9 +164,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
             Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
             log.info("admin username {}, password {}", username.getAnswer(), password.getAnswer());
-            boolean user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
+            User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
             log.info("admin user {}", user);
-            if (user) {
+            if (user != null) {
                 log.info("authenticate success...");
                 sessionIndex.set(11);
                 nextQuestion = questions.get(sessionIndex.get());
@@ -206,10 +209,13 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     sessionIndex.set(14);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-                    AzureUserDto userDetail = getUserByEmailService.getUserByEmail(email.getAnswer());
-                    log.info("User details {}", userDetail);
+                    Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
+                    Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
+                    log.info("admin username {}, password {}", username.getAnswer(), password.getAnswer());
+                    User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
+                    log.info("User details {}", user);
                     String OTP = otpGenerateService.generateOTP();
-                    smsService.send(userDetail.getMobilePhone(), OTP);
+                    smsService.send(user.getContactNumber(), OTP);
                     commonPool.addOTP(message.getSession(), OTP);
                 }
             } else {
@@ -221,7 +227,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             }
 
         }
-        if (sessionIndex.get() == 15) {
+        if (sessionIndex.get() == 15) {//
             Question inputOTP = commonPool.getAnswerForQuestion(message.getSession(), "14");
             log.info("User given otp {}", inputOTP.getAnswer());
             String generatedOTP = commonPool.getOTP(message.getSession());
@@ -244,7 +250,6 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             String newPassword = passwordResetService.resetPassword(email.getAnswer());
             sendQuestion(message.getSession(), nextQuestion.getQuestion() + newPassword, nextQuestion.getInputType(), nextQuestion.getArgs());
             sessionIndex.set(17);
-            Thread.sleep(1000);
             nextQuestion = questions.get(sessionIndex.get());
             sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
         }
@@ -264,11 +269,6 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
         }
 
-    }
-
-
-    private void clearSession(String session) {
-        commonPool.removeSessionData(session);
     }
 
     private void clearSessionWithSayThanks(String session, String type) {

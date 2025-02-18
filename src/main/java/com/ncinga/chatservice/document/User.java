@@ -27,6 +27,7 @@ public class User {
     private String password;
 
     private String role;
+    private String contactNumber;
 
     @DBRef
     private List<Role>  roles;

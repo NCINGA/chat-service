@@ -9,5 +9,5 @@ public interface UserService {
 
     User register(User user);
 
-    boolean findByRole(String email,String password,String userRole);
+    User findByRole(String email,String password,String userRole);
 }

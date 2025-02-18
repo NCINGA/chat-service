@@ -21,9 +21,9 @@ public class PasswordReset implements IntentWorkflow {
 //        List<WorkFlowQuestion> questions = new ArrayList<>();
 //        questions.add(new WorkFlowQuestion("Got it... To continue this operation login is required", YES_NO, null));
 //        questions.add(new WorkFlowQuestion("Thank You...", TEXT, null));
-//        questions.add(new WorkFlowQuestion("Tell, me what is your username?", TEXT, null));
+//        questions.add(new WorkFlowQuestion("Tell, me what is your email?", TEXT, null));
 //        questions.add(new WorkFlowQuestion("What is your password ?", PASSWORD, null));
-//        questions.add(new WorkFlowQuestion("Enter password change username : ", TEXT, null));
+//        questions.add(new WorkFlowQuestion("Enter password change email : ", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Enter new password : ", PASSWORD, null));
 //        questions.add(new WorkFlowQuestion("Authenticating......", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Authenticating Success", TEXT, null));
@@ -38,10 +38,10 @@ public class PasswordReset implements IntentWorkflow {
 //        questions.add(new WorkFlowQuestion("Please enter OTP number", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Verified...", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Verification failed...", PROBLEM, null));
-//        questions.add(new WorkFlowQuestion("Please enter your username or object ID", TEXT, null));
+//        questions.add(new WorkFlowQuestion("Please enter your email or object ID", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Please enter your validate password", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Working...", TEXT, null));
-//        questions.add(new WorkFlowQuestion("Enter the employee's username to proceed with the password change : ", TEXT, null));
+//        questions.add(new WorkFlowQuestion("Enter the employee's email to proceed with the password change : ", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Your new password is : ", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Please login to the portal with this password", TEXT, null));
 //        questions.add(new WorkFlowQuestion("Please enter the registered email address associated with your Microsoft account.", TEXT, null));
@@ -63,10 +63,10 @@ public class PasswordReset implements IntentWorkflow {
 
 
         //for admin
-        questions.add(new WorkFlowQuestion("To proceed, please enter your Admin username.", TEXT, null));
-        questions.add(new WorkFlowQuestion("Now, please enter your Admin password.", TEXT, null));
-        questions.add(new WorkFlowQuestion("The password or username entered is incorrect. Please try again.", TEXT, null));
-        questions.add(new WorkFlowQuestion("Your identity has been verified. Please enter the username of the employee whose password you want to reset.", TEXT, null));
+        questions.add(new WorkFlowQuestion("To proceed, please enter your admin email.", TEXT, null));
+        questions.add(new WorkFlowQuestion("Now, please enter your admin password.", PASSWORD, null));
+        questions.add(new WorkFlowQuestion("The password or email entered is incorrect. Please try again.", TEXT, null));
+        questions.add(new WorkFlowQuestion("Your identity has been verified. Please enter the email of the employee whose password you want to reset.", TEXT, null));
         questions.add(new WorkFlowQuestion("Please confirm if this is correct  ", YES_NO, null));
         questions.add(new WorkFlowQuestion("Give email not valid email address please check ", PROBLEM, null));
         questions.add(new WorkFlowQuestion("An OTP has been sent to your registered mobile number. Please enter the 4-digit OTP to verify your identity.", TEXT, null));
