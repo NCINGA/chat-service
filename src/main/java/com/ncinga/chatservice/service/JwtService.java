@@ -1,5 +1,6 @@
 package com.ncinga.chatservice.service;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -10,13 +11,15 @@ import java.util.function.Function;
 
 public interface JwtService {
 
+    String generateAzureADToken();
+
     String generateToken(Authentication authentication, Map<String, Object> extraClaims);
 
     String generateRefreshToken(Authentication authentication);
 
     String extractUserName(String token);
 
-    <T> T extractClaim(String token, Function<io.jsonwebtoken.Claims, T> claimResolver);
+    <T> T extractClaim(String token, Function<Claims, T> claimResolver);
 
     boolean validateToken(String token, UserDetails userDetails);
 
@@ -25,7 +28,5 @@ public interface JwtService {
     boolean isTokenExpired(String token);
 
     Key getKey();
-
-    String generateAzureADToken();
 
 }
