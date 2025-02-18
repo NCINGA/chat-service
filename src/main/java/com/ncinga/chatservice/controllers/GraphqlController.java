@@ -1,8 +1,10 @@
 package com.ncinga.chatservice.controllers;
 
 import com.ncinga.chatservice.config.ChatSinkManager;
+import com.ncinga.chatservice.document.User;
 import com.ncinga.chatservice.dto.AzureUserDto;
 import com.ncinga.chatservice.dto.Message;
+import com.ncinga.chatservice.repository.UserRepo;
 import com.ncinga.chatservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import com.ncinga.chatservice.dto.UserDto;
 
 import java.util.List;
 
@@ -31,6 +34,7 @@ public class GraphqlController {
     private final UnlockUserService unlockUserService;
     private final ChatService chatService;
     private final GetUserByEmailService getUserByEmailService;
+    private final UserRepo userRepo;
 
     @QueryMapping(name = "ping")
     public String ping() {
@@ -81,6 +85,54 @@ public class GraphqlController {
     public Mono<Message> sendMessage(@Argument Message message) throws IllegalAccessException, InterruptedException {
         chatService.sendMessage(message);
         return Mono.just(message);
+    }
+
+    @MutationMapping(name = "addUser")
+    public String addUser(UserDto userDto) {
+        // Use Lombok builder pattern to create a user
+        User newUser = User.builder()
+                .name(userDto.getName())
+                .email(userDto.getEmail())
+                .password(userDto.getPassword())
+                .userRole(userDto.getUserRole())
+                .company(userDto.getCompany())
+                .build();
+//        userRepo.save(newUser)
+
+
+        this.passwordEncoder.matches(password, newUser.getPassword());
+
+        return "sucess";// Save and return the created user
+    }
+
+    @MutationMapping(name = "updateUser")
+    public String updateUser(
+            @Argument String id,
+            @Argument String name,
+            @Argument String email,
+            @Argument String password,
+            @Argument String userRole,
+            @Argument String company) {
+
+        return userService.findById(id).map(user -> {
+            user.setName(name);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setUserRole(userRole);
+            user.setCompany(company);
+            userService.save(user);  // Save the updated user to the database
+            return "User updated successfully";
+        }).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @MutationMapping(name = "deleteUserMongo")
+    public String deleteUserMongo(@Argument String id) {
+        if (userService.findById(id).isPresent()) {
+            userService.deleteById(id);
+            return "User deleted successfully.";
+        } else {
+            throw new RuntimeException("User not found");
+        }
     }
 
 

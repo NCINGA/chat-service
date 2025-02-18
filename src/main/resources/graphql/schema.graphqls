@@ -14,6 +14,12 @@ type Mutation{
     disableUser(userId: String!): String!
     sendMessage(message : MessageInput): MessageOutput!
 
+    addUser(name: String!, email: String!,password: String!,userRole: String!,company: String!): String
+
+    updateUser( id: ID!, name: String!, email: String!,password: String!,userRole: String!,company: String!): String
+
+    deleteUserMongo(id: ID!): String
+
 }
 
 type Subscription {

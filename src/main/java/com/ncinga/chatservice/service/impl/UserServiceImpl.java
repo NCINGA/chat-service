@@ -41,15 +41,10 @@ public class UserServiceImpl implements UserService {
             Authentication authenticate = this.authenticationManager.authenticate(authenticationToken);
 
             if (authenticate.isAuthenticated()) {
-                log.info("SUCCEWSS!!");
+                log.info("SUCCESS!!");
             } else {
-                log.info("FAILD");
+                log.info("FAILED");
             }
-
-//            Optional<User> byUsername = userRepository.findByUsername(authenticateDto.getUsername());
-//            log.info("{}", byUsername);
-//            boolean hasMatched = encoder.matches(authenticateDto.getPassword(), byUsername.get().getPassword());
-//            log.info("{}", hasMatched);
 
             return new SuccessAuthenticateDto(null, null);
 
@@ -57,15 +52,6 @@ public class UserServiceImpl implements UserService {
             log.error("{}", ex.getMessage());
             throw new Exception(ex);
         }
-        /*
-        Map<String, Object> extraClaims = new HashMap<>();
-        List<String> authorities = authenticate.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-        extraClaims.put("roles", authorities);
-
-        String accessToken = this.jwtService.generateToken(authenticate, extraClaims);
-        String refreshToken = this.jwtService.generateRefreshToken(authenticate);
-
-         */
     }
 
     @Override
@@ -73,4 +59,13 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
+
+//    @Override
+//    public boolean isAdmin(AuthenticateDto authenticateDto) {
+//        if (authenticateDto == null || authenticateDto.getRoles() == null) {
+//            return false;
+//        }
+//        return authenticateDto.getRoles().stream()
+//                .anyMatch(role -> "admin".equalsIgnoreCase(role));
+//    }
 }

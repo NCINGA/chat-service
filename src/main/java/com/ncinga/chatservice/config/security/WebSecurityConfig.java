@@ -30,6 +30,7 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 "/auth/**",
                                 "/role/**"
+
                         )
                         .permitAll()
                         .anyRequest()

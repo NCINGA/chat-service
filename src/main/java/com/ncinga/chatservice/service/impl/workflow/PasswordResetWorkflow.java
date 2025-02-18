@@ -102,7 +102,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 Question username = commonPool.getAnswerForQuestion(message.getSession(), "4");
                 Question password = commonPool.getAnswerForQuestion(message.getSession(), "5");
                 log.info("user name and password {} ,{}", username.getAnswer(), password.getAnswer());
-                String response = passwordResetService.resetPassword(username.getAnswer(), password.getAnswer());
+                String response = passwordResetService.resetPassword(username.getAnswer());
 
                 sessionIndex.set(9);
                 nextQuestion = questions.get(sessionIndex.get());

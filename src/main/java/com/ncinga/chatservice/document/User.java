@@ -20,14 +20,20 @@ public class User {
     @Id
     private String id;
 
-    private String username;
+    private String name;
 
     private String password;
+
+    private String email;
+
+    private String company;
+
+    private String userRole;
 
     @DBRef
     private List<Role>  roles;
 
-    @DBRef
-    List<Authority> authorityList;
+//    @DBRef
+//    List<Authority> authorityList; add later
 
 }
