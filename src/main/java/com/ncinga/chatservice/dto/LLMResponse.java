@@ -12,4 +12,8 @@ public class LLMResponse {
     @JsonProperty("use_query")
     private String useQuery;
     private String intent;
+    private String detail;
+    private String response;
+    @JsonProperty("chat_termination")
+    private boolean termination;
 }

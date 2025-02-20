@@ -19,8 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.ncinga.chatservice.service.impl.workflow.Dictionary.KB_ARTICLE_ASSISTANCE;
-import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.*;
 
 @Service
 @Slf4j
@@ -29,6 +28,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatSinkManager<Message> chatSinkManager;
     private final CommonPool commonPool;
     private final LLMService llmService;
+    private final LLMService2 llmService2;
     private final SMSService smsService;
     private final PasswordResetService passwordResetService;
     private final OTPGenerateService otpGenerateService;
@@ -58,7 +58,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         if (sessionIndex.get() == -2) {
-            LLMResponse response = llmService.detectIntent(new LLMRequest(message.getSession(), message.getMessage()));
+            LLMResponse response = llmService.detectIntent(new LLMRequest(message.getSession(), message.getMessage(), null));
             log.info("Detected intent: {}", response.getIntent());
             intent.set(response.getIntent());
             IntentWorkflow intentWorkflow = IntentFactory.getIntent(response.getIntent());
@@ -69,9 +69,14 @@ public class ChatServiceImpl implements ChatService {
             sessionIndex.set(0);
             WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
             sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), firstQuestion.getArgs());
+            if (response.getIntent().equals(REPORT_ISSUE)) {
+                sessionIndex.set(0);
+                workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService, userService, llmService2);
+                workflowProcess.execute(sessionIndex, message);
+            }
             return;
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService, userService);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService, userService, llmService2);
         workflowProcess.execute(sessionIndex, message);
     }
 

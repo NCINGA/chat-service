@@ -117,10 +117,10 @@ public class CommonPool {
             questionPool.remove(session);
             log.info("Removed question data for session: {}", session);
         }
-        if (sessionIndices.containsKey(session)) {
-            sessionIndices.remove(session);
-            log.info("Removed session index for session: {}", session);
-        }
+//        if (sessionIndices.containsKey(session)) {
+//            sessionIndices.remove(session);
+//            log.info("Removed session index for session: {}", session);
+//        }
         if (userResponses.containsKey(session)) {
             userResponses.remove(session);
             log.info("Removed user responses for session: {}", session);

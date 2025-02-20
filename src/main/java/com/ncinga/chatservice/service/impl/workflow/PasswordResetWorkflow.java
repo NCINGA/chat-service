@@ -22,7 +22,6 @@ import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
 @RequiredArgsConstructor
 @Slf4j
 public class PasswordResetWorkflow implements WorkflowProcess {
-    private static final String OTP_NUMBER = "7070";
     private final ChatSinkManager<Message> chatSinkManager;
     private final CommonPool commonPool;
     private final List<WorkFlowQuestion> questions;
@@ -117,8 +116,11 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.set(3);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-                commonPool.removeQuestion(message.getSession(), "3");
+                commonPool.removeQuestion(message.getSession(), "2");
                 log.info("OTP not verified...");
+                sessionIndex.set(2);
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion().replace("An OTP has been sent to your registered mobile number. ", ""), nextQuestion.getInputType(), nextQuestion.getArgs());
             }
         }
 
@@ -135,16 +137,10 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
         }
 
-//        log.info("session index {}", sessionIndex.get());
-//        if (sessionIndex.get() == 5) {
-//            sessionIndex.set(5);
-//            nextQuestion = questions.get(sessionIndex.get());
-//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-//        }
 
         if (sessionIndex.get() == 6) {
             Question reset = commonPool.getAnswerForQuestion(message.getSession(), "5");
-            if (reset.getAnswer().equals("yes")) {
+            if (reset != null && reset.getAnswer().equals("yes")) {
                 commonPool.removeOTP(message.getSession());
                 commonPool.removeUserResponseData(message.getSession());
                 commonPool.removeOTP(message.getSession());
@@ -152,129 +148,131 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
             } else {
+                sessionIndex.set(-2);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
             }
         }
 
-        if (sessionIndex.get() == 8) {
-            nextQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-
-        }
-        if (sessionIndex.get() == 9) {
-            nextQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-
-        }
-
-        if (sessionIndex.get() == 10) {
-            Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
-            Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
-            log.info("admin username {}", username.getAnswer());
-            User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
-            log.info("admin user {}", user);
-            if (user != null) {
-                log.info("authenticate success...");
-                sessionIndex.set(11);
-                nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-            } else {
-                log.info("authenticate failed...");
-                sessionIndex.set(10);
-                nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-                sessionIndex.set(8);
-                nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-                commonPool.removeQuestion(message.getSession(), "8");
-                commonPool.removeQuestion(message.getSession(), "9");
-            }
-        }
-
-
-        if (sessionIndex.get() == 12) {
-            nextQuestion = questions.get(sessionIndex.get());
-            Question email = commonPool.getAnswerForQuestion(message.getSession(), "11");
-            sendQuestion(message.getSession(), nextQuestion.getQuestion() + email.getAnswer(), nextQuestion.getInputType(), nextQuestion.getArgs());
-        }
-
-        if (sessionIndex.get() == 13) {
-            Question confirmation = commonPool.getAnswerForQuestion(message.getSession(), "12");
-            if (confirmation.getAnswer().equals("yes")) {
-                Question email = commonPool.getAnswerForQuestion(message.getSession(), "11");
-                boolean isExist = getUserByEmailService.doesUserExist(email.getAnswer());
-                log.info("Email already exist {}", isExist);
-                if (!isExist) {
-                    sessionIndex.set(13);
-                    nextQuestion = questions.get(sessionIndex.get());
-                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-                    sessionIndex.set(11);
-                    nextQuestion = questions.get(sessionIndex.get());
-                    sendQuestion(message.getSession(), nextQuestion.getQuestion().replace("Your identity has been verified. ", ""), nextQuestion.getInputType(), nextQuestion.getArgs());
-                    commonPool.removeQuestion(message.getSession(), "11");
-                } else {
-                    sessionIndex.set(14);
-                    nextQuestion = questions.get(sessionIndex.get());
-                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-                    Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
-                    Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
-                    log.info("admin username {}", username.getAnswer());
-                    User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
-                    log.info("User details {}", user);
-                    String OTP = otpGenerateService.generateOTP();
-                    smsService.send(user.getContactNumber(), OTP);
-                    commonPool.addOTP(message.getSession(), OTP);
-                }
-            } else {
-                sessionIndex.set(11);
-                nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion().replace("Your identity has been verified. ", ""), nextQuestion.getInputType(), nextQuestion.getArgs());
-                commonPool.removeQuestion(message.getSession(), "11");
-                commonPool.removeQuestion(message.getSession(), "12");
-            }
-
-        }
-        if (sessionIndex.get() == 15) {//
-            Question inputOTP = commonPool.getAnswerForQuestion(message.getSession(), "14");
-            log.info("User given otp {}", inputOTP.getAnswer());
-            String generatedOTP = commonPool.getOTP(message.getSession());
-            if (generatedOTP.equals(inputOTP.getAnswer())) {
-                log.info("OTP verified...");
-                commonPool.removeOTP(message.getSession());
-                sessionIndex.set(16);
-            } else {
-                sessionIndex.set(14);
-                nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion().replace("An OTP has been sent to your registered mobile number. Please enter the 4-digit OTP to verify your identity.", "OTP is wrong please check and retry.."), nextQuestion.getInputType(), nextQuestion.getArgs());
-                commonPool.removeQuestion(message.getSession(), "14");
-                log.info("OTP not verified...");
-            }
-        }
-
-        if (sessionIndex.get() == 16) {
-            Question email = commonPool.getAnswerForQuestion(message.getSession(), "11");
-            nextQuestion = questions.get(sessionIndex.get());
-            String newPassword = passwordResetService.resetPassword(email.getAnswer());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion() + newPassword, nextQuestion.getInputType(), nextQuestion.getArgs());
-            sessionIndex.set(17);
-            nextQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-        }
-
-        if (sessionIndex.get() == 18) {
-            Question reset = commonPool.getAnswerForQuestion(message.getSession(), "17");
-            if (reset.getAnswer().equals("yes")) {
-                commonPool.removeOTP(message.getSession());
-                commonPool.removeUserResponseData(message.getSession());
-                commonPool.removeOTP(message.getSession());
-                sessionIndex.set(0);
-                nextQuestion = questions.get(sessionIndex.get());
-                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-            } else {
-                clearSessionWithSayThanks(message.getSession(), TEXT);
-            }
-
-        }
+//        if (sessionIndex.get() == 8) {
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//
+//        }
+//        if (sessionIndex.get() == 9) {
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//
+//        }
+//
+//        if (sessionIndex.get() == 10) {
+//            Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
+//            Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
+//            log.info("admin username {}", username.getAnswer());
+//            User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
+//            log.info("admin user {}", user);
+//            if (user != null) {
+//                log.info("authenticate success...");
+//                sessionIndex.set(11);
+//                nextQuestion = questions.get(sessionIndex.get());
+//                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//            } else {
+//                log.info("authenticate failed...");
+//                sessionIndex.set(10);
+//                nextQuestion = questions.get(sessionIndex.get());
+//                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//                sessionIndex.set(8);
+//                nextQuestion = questions.get(sessionIndex.get());
+//                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//                commonPool.removeQuestion(message.getSession(), "8");
+//                commonPool.removeQuestion(message.getSession(), "9");
+//            }
+//        }
+//
+//
+//        if (sessionIndex.get() == 12) {
+//            nextQuestion = questions.get(sessionIndex.get());
+//            Question email = commonPool.getAnswerForQuestion(message.getSession(), "11");
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion() + email.getAnswer(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//        }
+//
+//        if (sessionIndex.get() == 13) {
+//            Question confirmation = commonPool.getAnswerForQuestion(message.getSession(), "12");
+//            if (confirmation.getAnswer().equals("yes")) {
+//                Question email = commonPool.getAnswerForQuestion(message.getSession(), "11");
+//                boolean isExist = getUserByEmailService.doesUserExist(email.getAnswer());
+//                log.info("Email already exist {}", isExist);
+//                if (!isExist) {
+//                    sessionIndex.set(13);
+//                    nextQuestion = questions.get(sessionIndex.get());
+//                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//                    sessionIndex.set(11);
+//                    nextQuestion = questions.get(sessionIndex.get());
+//                    sendQuestion(message.getSession(), nextQuestion.getQuestion().replace("Your identity has been verified. ", ""), nextQuestion.getInputType(), nextQuestion.getArgs());
+//                    commonPool.removeQuestion(message.getSession(), "11");
+//                } else {
+//                    sessionIndex.set(14);
+//                    nextQuestion = questions.get(sessionIndex.get());
+//                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//                    Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
+//                    Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
+//                    log.info("admin username {}", username.getAnswer());
+//                    User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
+//                    log.info("User details {}", user);
+//                    String OTP = otpGenerateService.generateOTP();
+//                    smsService.send(user.getContactNumber(), OTP);
+//                    commonPool.addOTP(message.getSession(), OTP);
+//                }
+//            } else {
+//                sessionIndex.set(11);
+//                nextQuestion = questions.get(sessionIndex.get());
+//                sendQuestion(message.getSession(), nextQuestion.getQuestion().replace("Your identity has been verified. ", ""), nextQuestion.getInputType(), nextQuestion.getArgs());
+//                commonPool.removeQuestion(message.getSession(), "11");
+//                commonPool.removeQuestion(message.getSession(), "12");
+//            }
+//
+//        }
+//        if (sessionIndex.get() == 15) {//
+//            Question inputOTP = commonPool.getAnswerForQuestion(message.getSession(), "14");
+//            log.info("User given otp {}", inputOTP.getAnswer());
+//            String generatedOTP = commonPool.getOTP(message.getSession());
+//            if (generatedOTP.equals(inputOTP.getAnswer())) {
+//                log.info("OTP verified...");
+//                commonPool.removeOTP(message.getSession());
+//                sessionIndex.set(16);
+//            } else {
+//                sessionIndex.set(14);
+//                nextQuestion = questions.get(sessionIndex.get());
+//                sendQuestion(message.getSession(), nextQuestion.getQuestion().replace("An OTP has been sent to your registered mobile number. Please enter the 4-digit OTP to verify your identity.", "OTP is wrong please check and retry.."), nextQuestion.getInputType(), nextQuestion.getArgs());
+//                commonPool.removeQuestion(message.getSession(), "14");
+//                log.info("OTP not verified...");
+//            }
+//        }
+//
+//        if (sessionIndex.get() == 16) {
+//            Question email = commonPool.getAnswerForQuestion(message.getSession(), "11");
+//            nextQuestion = questions.get(sessionIndex.get());
+//            String newPassword = passwordResetService.resetPassword(email.getAnswer());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion() + newPassword, nextQuestion.getInputType(), nextQuestion.getArgs());
+//            sessionIndex.set(17);
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//        }
+//
+//        if (sessionIndex.get() == 18) {
+//            Question reset = commonPool.getAnswerForQuestion(message.getSession(), "17");
+//            if (reset.getAnswer().equals("yes")) {
+//                commonPool.removeOTP(message.getSession());
+//                commonPool.removeUserResponseData(message.getSession());
+//                commonPool.removeOTP(message.getSession());
+//                sessionIndex.set(0);
+//                nextQuestion = questions.get(sessionIndex.get());
+//                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//            } else {
+//                sessionIndex.set(-2);
+//                clearSessionWithSayThanks(message.getSession(), TEXT);
+//            }
+//
+//        }
 
     }
 

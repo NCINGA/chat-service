@@ -7,16 +7,18 @@ import com.ncinga.chatservice.service.*;
 
 import java.util.List;
 
-import static com.ncinga.chatservice.service.impl.workflow.Dictionary.EMPLOYEE_ONBOARDING;
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.REPORT_ISSUE;
 import static com.ncinga.chatservice.service.impl.workflow.Dictionary.RESET_PASSWORD;
 
 public class WorkflowProcessFactory {
 
-    public static WorkflowProcess getWorkflowProcess(String workflow, ChatSinkManager<Message> chatSinkManager, CommonPool commonPool, List<WorkFlowQuestion> questions, PasswordResetService passwordResetService, SMSService smsService, GetUserByEmailService getUserByEmailService, OTPGenerateService otpGenerateService, UserService userService) throws IllegalAccessException {
+    public static WorkflowProcess getWorkflowProcess(String workflow, ChatSinkManager<Message> chatSinkManager, CommonPool commonPool, List<WorkFlowQuestion> questions, PasswordResetService passwordResetService, SMSService smsService, GetUserByEmailService getUserByEmailService, OTPGenerateService otpGenerateService, UserService userService, LLMService2 llmService2)throws
+
+    IllegalAccessException {
         if (RESET_PASSWORD.equalsIgnoreCase(workflow)) {
             return new PasswordResetWorkflow(chatSinkManager, commonPool, questions, passwordResetService, getUserByEmailService, smsService, otpGenerateService, userService);
-        } else if (EMPLOYEE_ONBOARDING.equalsIgnoreCase(workflow)) {
-            return null;
+        } else if (REPORT_ISSUE.equalsIgnoreCase(workflow)) {
+            return new CreateTicketWorkflow(chatSinkManager, commonPool, questions, passwordResetService, getUserByEmailService, smsService, otpGenerateService, userService, llmService2);
         }
         return null;
     }
