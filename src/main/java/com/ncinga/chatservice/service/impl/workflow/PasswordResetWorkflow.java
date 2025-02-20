@@ -42,7 +42,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         if (index == -1) {
             commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
             commonPool.removeSessionData(message.getSession());
-            sessionIndex.set(1);
+            sessionIndex.set(0);
             log.info("New session started for user: {}", message.getSession());
         }
 
@@ -57,37 +57,37 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             if (message.getMessage().equalsIgnoreCase("admin")) {
                 sessionIndex.set(8);
             } else if (message.getMessage().equalsIgnoreCase("user")) {
-                sessionIndex.set(1);
+                sessionIndex.set(0);
             }
         }
+//
+//        if (sessionIndex.get() == 1) {
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//        }
+
 
         if (sessionIndex.get() == 1) {
+            Question email = commonPool.getAnswerForQuestion(message.getSession(), "0");
             nextQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+            sendQuestion(message.getSession(), nextQuestion.getQuestion() + email.getAnswer(), nextQuestion.getInputType(), nextQuestion.getArgs());
         }
-
 
         if (sessionIndex.get() == 2) {
-            Question email = commonPool.getAnswerForQuestion(message.getSession(), "1");
-            nextQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion()+email.getAnswer(), nextQuestion.getInputType(), nextQuestion.getArgs());
-        }
-
-        if (sessionIndex.get() == 3) {
-            Question confirmation = commonPool.getAnswerForQuestion(message.getSession(), "2");
-            Question email = commonPool.getAnswerForQuestion(message.getSession(), "1");
+            Question confirmation = commonPool.getAnswerForQuestion(message.getSession(), "1");
+            Question email = commonPool.getAnswerForQuestion(message.getSession(), "0");
             if (confirmation.getAnswer().equals("yes")) {
                 boolean isExist = getUserByEmailService.doesUserExist(email.getAnswer());
                 log.info("Email already exist {}", isExist);
                 if (!isExist) {
-                    sessionIndex.set(7);
+                    sessionIndex.set(6);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
-                    sessionIndex.set(1);
+                    sessionIndex.set(0);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
                     commonPool.removeQuestion(message.getSession(), "1");
-                    commonPool.removeQuestion(message.getSession(), "2");
+                    commonPool.removeQuestion(message.getSession(), "0");
                 } else {
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
@@ -98,21 +98,21 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     commonPool.addOTP(message.getSession(), OTP);
                 }
             } else {
-                sessionIndex.set(1);
+                sessionIndex.set(0);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
                 commonPool.removeQuestion(message.getSession(), "1");
-                commonPool.removeQuestion(message.getSession(), "2");
+                commonPool.removeQuestion(message.getSession(), "0");
             }
         }
-        if (sessionIndex.get() == 4) {
-            Question inputOTP = commonPool.getAnswerForQuestion(message.getSession(), "3");
+        if (sessionIndex.get() == 3) {
+            Question inputOTP = commonPool.getAnswerForQuestion(message.getSession(), "2");
             log.info("User given otp {}", inputOTP.getAnswer());
             String generatedOTP = commonPool.getOTP(message.getSession());
             if (generatedOTP.equals(inputOTP.getAnswer())) {
                 log.info("OTP verified...");
                 commonPool.removeOTP(message.getSession());
-                sessionIndex.set(5);
+                sessionIndex.set(4);
             } else {
                 sessionIndex.set(3);
                 nextQuestion = questions.get(sessionIndex.get());
@@ -122,21 +122,28 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             }
         }
 
-        if (sessionIndex.get() == 5) {
-            Question email = commonPool.getAnswerForQuestion(message.getSession(), "1");
+        if (sessionIndex.get() == 4) {
+            Question email = commonPool.getAnswerForQuestion(message.getSession(), "0");
             log.info("Get id by email {}", email.getAnswer());
             AzureUserDto userDto = getUserByEmailService.getUserByEmail(email.getAnswer());
             log.info("User details {}", userDto);
             String newPassword = passwordResetService.resetPassword(userDto.getId());
             nextQuestion = questions.get(sessionIndex.get());
             sendQuestion(message.getSession(), nextQuestion.getQuestion() + newPassword, nextQuestion.getInputType(), nextQuestion.getArgs());
-            sessionIndex.set(6);
+            sessionIndex.set(5);
             nextQuestion = questions.get(sessionIndex.get());
             sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
         }
 
-        if (sessionIndex.get() == 7) {
-            Question reset = commonPool.getAnswerForQuestion(message.getSession(), "6");
+//        log.info("session index {}", sessionIndex.get());
+//        if (sessionIndex.get() == 5) {
+//            sessionIndex.set(5);
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
+//        }
+
+        if (sessionIndex.get() == 6) {
+            Question reset = commonPool.getAnswerForQuestion(message.getSession(), "5");
             if (reset.getAnswer().equals("yes")) {
                 commonPool.removeOTP(message.getSession());
                 commonPool.removeUserResponseData(message.getSession());
@@ -163,7 +170,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         if (sessionIndex.get() == 10) {
             Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
             Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
-            log.info("admin username {}, password {}", username.getAnswer(), password.getAnswer());
+            log.info("admin username {}", username.getAnswer());
             User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
             log.info("admin user {}", user);
             if (user != null) {
@@ -211,7 +218,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType(), nextQuestion.getArgs());
                     Question username = commonPool.getAnswerForQuestion(message.getSession(), "8");
                     Question password = commonPool.getAnswerForQuestion(message.getSession(), "9");
-                    log.info("admin username {}, password {}", username.getAnswer(), password.getAnswer());
+                    log.info("admin username {}", username.getAnswer());
                     User user = userService.findByRole(username.getAnswer(), password.getAnswer(), "ADMIN");
                     log.info("User details {}", user);
                     String OTP = otpGenerateService.generateOTP();
