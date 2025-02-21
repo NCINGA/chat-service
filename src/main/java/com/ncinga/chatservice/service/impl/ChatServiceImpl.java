@@ -42,6 +42,7 @@ public class ChatServiceImpl implements ChatService {
         log.info("Chat message received from session: {}", message.getSession());
         AtomicInteger sessionIndex = commonPool.getSessionIndex(message.getSession());
         WorkflowProcess workflowProcess = null;
+        IntentWorkflow intentWorkflow = null;
         if (Dictionary.GREETS.contains(message.getMessage().toLowerCase())) {
            // if (sessionIndex.get() == -1) {
                 sessionIndex.set(-2);
@@ -61,7 +62,7 @@ public class ChatServiceImpl implements ChatService {
             LLMResponse response = llmService.detectIntent(new LLMRequest(message.getSession(), message.getMessage(), null));
             log.info("Detected intent: {}", response.getIntent());
             intent.set(response.getIntent());
-            IntentWorkflow intentWorkflow = IntentFactory.getIntent(response.getIntent());
+            intentWorkflow = IntentFactory.getIntent(response.getIntent());
             questions = intentWorkflow.getQuestions();
             if (response.getIntent().equalsIgnoreCase(KB_ARTICLE_ASSISTANCE)) {
                 clearSession(message.getSession());
@@ -77,7 +78,14 @@ public class ChatServiceImpl implements ChatService {
             return;
         }
         workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, smsService, getUserByEmailService, otpGenerateService, userService, llmService2);
-        workflowProcess.execute(sessionIndex, message);
+        if (workflowProcess != null) {
+            workflowProcess.execute(sessionIndex, message);
+        } else {
+            WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
+            sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType(), firstQuestion.getArgs());
+            clearSession(message.getSession());
+            sessionIndex.set(-2);
+        }
     }
 
     private void clearSession(String session) {
