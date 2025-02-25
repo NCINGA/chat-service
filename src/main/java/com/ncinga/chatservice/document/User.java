@@ -28,10 +28,6 @@ public class User {
 
     private String role;
 
-    @DBRef
-    private List<Role>  roles;
 
-    @DBRef
-    List<Authority> authorityList;
 
 }

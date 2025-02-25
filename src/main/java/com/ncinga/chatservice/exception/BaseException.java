@@ -1,5 +1,6 @@
 package com.ncinga.chatservice.exception;
 
+import com.ncinga.chatservice.utilities.ResponseCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,8 +10,10 @@ import lombok.Setter;
 @RequiredArgsConstructor
 
 public class BaseException extends Exception {
-    private String error;
-    BaseException(String error) {
-        this.error = error;
+    private ResponseCode responseCode;
+    BaseException(ResponseCode responseCode)
+    {
+        super(responseCode.getMessage());
+        this.responseCode= responseCode;
     }
 }
