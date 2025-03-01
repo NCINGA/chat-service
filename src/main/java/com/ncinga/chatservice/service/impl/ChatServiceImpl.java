@@ -6,9 +6,7 @@ import com.ncinga.chatservice.dto.LLMRequest;
 import com.ncinga.chatservice.dto.LLMResponse;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
-import com.ncinga.chatservice.service.ChatService;
-import com.ncinga.chatservice.service.LLMService;
-import com.ncinga.chatservice.service.PasswordResetService;
+import com.ncinga.chatservice.service.*;
 import com.ncinga.chatservice.service.impl.workflow.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +31,10 @@ public class ChatServiceImpl implements ChatService {
     private final LLMService llmService;
 
     private final PasswordResetService passwordResetService;
+    private final UserOnBoardingService userOnBoardingService;
+    private final UserOffBoardingService userOffBoardingService;
+    private final UnlockUserService unlockUserService;
+    private final GetUserByEmailService getUserByEmailService;
     private List<WorkFlowQuestion> questions = new ArrayList<>();
     AtomicReference<String> intent = new AtomicReference<>("");
 
@@ -70,7 +72,7 @@ public class ChatServiceImpl implements ChatService {
             sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
             return;
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService);
         workflowProcess.execute(sessionIndex, message);
 
     }

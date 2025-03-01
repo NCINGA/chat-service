@@ -6,8 +6,9 @@ type Query{
     doesUserExist(email: String!): Boolean
     findByRole(email: String!, password: String!, userRole: String!): Object
     doesUserExistByName(username: String): Boolean!
-    getAllUsers: Object!
+    getAllUsers: Object
     getUserById(id: String!): Object!
+    getUserIdByEmail(email: String!): String!
 }
 
 type Mutation{

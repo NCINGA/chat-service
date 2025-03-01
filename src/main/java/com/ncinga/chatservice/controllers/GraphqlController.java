@@ -74,6 +74,11 @@ public class GraphqlController {
         return userService.getUserById(id);
     }
 
+    @QueryMapping(name = "getUserIdByEmail")
+    public String getUserIdByEmail(@Argument String email) {
+        return getUserByEmailService.getUserIdByEmail(email);
+    }
+
     @SubscriptionMapping(name = "subscription")
     public Flux<Message> subscription(@Argument Message message) {
         return chatSinkManager.createChatFlow(message.getSession()).asFlux();
