@@ -3,6 +3,7 @@ package com.ncinga.chatservice.config.security;
 import com.ncinga.chatservice.document.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -21,19 +22,8 @@ public class UserPrincipal implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorityList = new ArrayList<>();
-//        List<Role> roles = this.user.getRoles();
-
-        // @TODO: add this when authorities are added.
-        /*
-        for (Role role : roles) {
-            List<Authority> authoritiesList = role.getAuthoritiesList();
-            for (Authority authority : authoritiesList) {
-                authorityList.add(new SimpleGrantedAuthority(role + "@" + authority));
-            }
-        }
-         */
-//        roles.stream().map(role -> authorityList.add(new SimpleGrantedAuthority(role.getRole())));
-        return new ArrayList<>();
+        authorityList.add(new SimpleGrantedAuthority(this.user.getRole()));
+        return authorityList;
     }
 
     @Override

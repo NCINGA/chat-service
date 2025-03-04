@@ -4,8 +4,6 @@ import com.ncinga.chatservice.document.User;
 import com.ncinga.chatservice.dto.AuthenticateDto;
 import com.ncinga.chatservice.dto.MongoUserDto;
 import com.ncinga.chatservice.dto.SuccessAuthenticateDto;
-import com.ncinga.chatservice.exception.UserNotFoundException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -28,4 +26,7 @@ public interface UserService {
     List<User> getAllUsers();
 
     Optional<User> getUserById(String id);
+
+    void logout(String token) throws Exception;
+
 }

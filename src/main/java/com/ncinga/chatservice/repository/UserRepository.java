@@ -2,7 +2,6 @@ package com.ncinga.chatservice.repository;
 
 import com.ncinga.chatservice.document.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;

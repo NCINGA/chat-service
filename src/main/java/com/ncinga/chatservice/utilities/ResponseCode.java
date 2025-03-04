@@ -17,8 +17,11 @@ public enum ResponseCode {
     USER_DELETE_SUCCESS("User delete success"),
     USER_DELETE_FAILED("User delete failed");
     private String message;
-
+//    private String reason;
     public void setMessage(String message) {
         this.message = message;
     }
+//    public void setReason(String reason) {
+//        this.reason = reason;
+//    }
 }

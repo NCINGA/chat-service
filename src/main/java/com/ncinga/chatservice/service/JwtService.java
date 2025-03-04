@@ -29,4 +29,8 @@ public interface JwtService {
 
     Key getKey();
 
+    String extractJti(String token);
+
+
+
 }
