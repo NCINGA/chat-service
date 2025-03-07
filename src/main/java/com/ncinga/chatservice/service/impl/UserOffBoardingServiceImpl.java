@@ -36,7 +36,7 @@ public class UserOffBoardingServiceImpl implements UserOffBoardingService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
             return "Response: " + response.getBody();
         } catch (Exception e) {
-            return "Failed to enable user: " + e.getMessage();
+            return "Failed to delete user: " + e.getMessage();
         }
     }
 

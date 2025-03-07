@@ -4,6 +4,11 @@ type Query{
     ping: String!
     getUserByEmail(email: String!): AzureUser
     doesUserExist(email: String!): Boolean
+    findByRole(email: String!, password: String!, userRole: String!): Object
+    doesUserExistByName(username: String): Boolean!
+    getAllUsers: Object
+    getUserById(id: String!): Object!
+    getUserIdByEmail(email: String!): String!
 }
 
 type Mutation{
@@ -13,8 +18,17 @@ type Mutation{
     unlockUser(userId: String!): String!
     disableUser(userId: String!): String!
     sendMessage(message : MessageInput): MessageOutput!
-
+    register(username: String!, password: String!, email: String!, role: String!) : User
+    updateUser(id: String, username: String, password: String, email: String, role: String): Object
+    deleteMongoUser(id: String): String!
 }
+
+#input UserData {
+#    username: String!
+#    password: String!
+#    email: String!
+#    role: String!
+#}
 
 type Subscription {
     subscription(message : MessageInput): MessageOutput
@@ -56,4 +70,11 @@ type AzureUser{
     userPrincipalName: String
     id: String
 
+}
+
+type User{
+    username: String
+    email: String
+    password: String
+    role: String
 }

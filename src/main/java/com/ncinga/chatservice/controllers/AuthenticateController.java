@@ -6,10 +6,7 @@ import com.ncinga.chatservice.dto.SuccessAuthenticateDto;
 import com.ncinga.chatservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/auth")
@@ -26,9 +23,10 @@ public class AuthenticateController {
         return response;
     }
 
-    @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.register(user);
-    }
+//    @PostMapping("/register")
+//    public User register(@RequestBody User user) {
+//        return userService.register(user);
+//    }
+
 
 }

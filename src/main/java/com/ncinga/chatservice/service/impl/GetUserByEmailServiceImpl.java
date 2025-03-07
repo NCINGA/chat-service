@@ -74,5 +74,32 @@ public class GetUserByEmailServiceImpl implements GetUserByEmailService {
             return false;
         }
     }
+
+    @Override
+    public String getUserIdByEmail(String email) {
+        String url = "https://graph.microsoft.com/v1.0/users/"+ email;
+        String token = jwtService.generateAzureADToken();
+
+        // Headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+
+        HttpEntity<AzureUserDto> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<AzureUserDto> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                AzureUserDto.class
+        );
+
+        AzureUserDto azureUser = response.getBody();
+
+        if (azureUser == null) {
+            return null;
+        }
+        return azureUser.getId();
+    }
 }
 

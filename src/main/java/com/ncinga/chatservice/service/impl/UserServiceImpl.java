@@ -2,12 +2,16 @@ package com.ncinga.chatservice.service.impl;
 
 import com.ncinga.chatservice.document.User;
 import com.ncinga.chatservice.dto.AuthenticateDto;
-import com.ncinga.chatservice.dto.RegisterDto;
+import com.ncinga.chatservice.dto.MongoUserDto;
 import com.ncinga.chatservice.dto.SuccessAuthenticateDto;
+import com.ncinga.chatservice.exception.GeneralException;
+import com.ncinga.chatservice.exception.UserAlreadyExistsException;
+import com.ncinga.chatservice.exception.UserNotFoundException;
 import com.ncinga.chatservice.repository.RoleRepository;
 import com.ncinga.chatservice.repository.UserRepository;
 import com.ncinga.chatservice.service.JwtService;
 import com.ncinga.chatservice.service.UserService;
+import com.ncinga.chatservice.utilities.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,8 +19,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.beanvalidation.CustomValidatorBean;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -35,7 +44,6 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder encoder;
 
 
-
 //    private final MyUserDetailsService myUserDetailsService;
 
     @Override
@@ -49,9 +57,9 @@ public class UserServiceImpl implements UserService {
             Authentication authenticate = this.authenticationManager.authenticate(authenticationToken);
 
             if (authenticate.isAuthenticated()) {
-                log.info("SUCCEWSS!!");
+                log.info("SUCCESS!!");
             } else {
-                log.info("FAILD");
+                log.info("FAILED");
             }
 
 //            Optional<User> byUsername = userRepository.findByUsername(authenticateDto.getUsername());
@@ -77,10 +85,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User register(User user) {
-        user.setPassword(encoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public Mono<Boolean> doesUserExist(String username) {
+
+        return Mono.fromSupplier(() -> userRepository.findByUsername(username).isPresent());
+
     }
+
+    @Override
+    public Mono<Map<String, Object>> register(MongoUserDto user) {
+        Map<String, Object> result = new HashMap<>();
+
+        return doesUserExist(user.getUsername()).flatMap(isFound -> {
+            if (!isFound) {
+                user.setPassword(encoder.encode(user.getPassword()));
+                User userEntity = user.toEntity(User.class);
+
+                return Mono.fromSupplier(() -> userRepository.save(userEntity))
+                        .map(savedUser -> {
+                            result.put("status", ResponseCode.USER_CREATE_SUCCESS);
+                            result.put("responseCode", ResponseCode.USER_CREATE_SUCCESS.ordinal());
+                            return result;
+                        });
+            } else {
+                // Instead of throwing an error, return a meaningful response
+                result.put("status", ResponseCode.USER_ALREADY_EXISTS);
+                result.put("responseCode", ResponseCode.USER_ALREADY_EXISTS.ordinal());
+                return Mono.just(result);
+            }
+        }).onErrorResume(e -> {
+            // Handle unexpected errors
+            result.put("status", ResponseCode.USER_CREATE_FAILED);
+            result.put("responseCode", ResponseCode.USER_CREATE_FAILED.ordinal());
+            return Mono.just(result);
+        });
+    }
+
 
     @Override
     public Object findByRole(String email, String password, String userRole) {
@@ -99,4 +138,72 @@ public class UserServiceImpl implements UserService {
                 })
                 .orElse("Incorrect credentials");
     }
+
+    @Override
+    public Mono<Map<String, Object>> updateUser(String id, MongoUserDto user) {
+        Map<String, Object> result = new HashMap<>();
+
+        return Mono.justOrEmpty(userRepository.findById(id))
+                .flatMap(existingUser -> {
+                    existingUser.setUsername(user.getUsername());
+                    existingUser.setEmail(user.getEmail());
+                    existingUser.setPassword(encoder.encode(user.getPassword()));
+                    existingUser.setRole(user.getRole());
+
+                    return Mono.fromSupplier(() -> userRepository.save(existingUser))
+                            .map(savedUser -> {
+                                result.put("status", ResponseCode.USER_UPDATE_SUCCESS);
+                                result.put("responseCode", ResponseCode.USER_UPDATE_SUCCESS.ordinal());
+                                return (result);
+                            });
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    result.put("status", ResponseCode.USER_NOT_FOUND);
+                    result.put("responseCode", ResponseCode.USER_NOT_FOUND.ordinal());
+                    return Mono.just(result);
+                }))
+                .onErrorResume(e -> {
+                    result.put("status", ResponseCode.USER_UPDATE_FAILED);
+                    result.put("responseCode", ResponseCode.USER_UPDATE_FAILED.ordinal());
+                    return Mono.just(result);
+                });
+    }
+
+
+    @Override
+    public String deleteMongoUser(String id) {
+
+        try {
+            if (!userRepository.findById(id).isPresent()) {
+                throw new UserNotFoundException(ResponseCode.USER_NOT_FOUND);
+            }
+
+            userRepository.deleteById(id);
+
+            // Verify if the user is successfully deleted
+            if (userRepository.findById(id).isPresent()) {
+                throw new RuntimeException(ResponseCode.USER_DELETE_FAILED.getMessage());
+            }
+
+            return ResponseCode.USER_DELETE_SUCCESS.getMessage();
+        }catch (UserNotFoundException e) {
+
+            return e.getMessage();
+
+        } catch (Exception e) {
+
+            return "An unexpected error occurred" + e.getMessage();
+        }
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public Optional<User> getUserById(String id) {
+        return userRepository.findById(id);
+    }
 }
+
