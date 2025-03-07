@@ -2,4 +2,79 @@ scalar Object
 
 type Query{
     ping: String!
+    getUserByEmail(email: String!): AzureUser
+    doesUserExist(email: String!): Boolean
+    findByRole(email: String!, password: String!, userRole: String!): Object
+    doesUserExistByName(username: String): Boolean!
+    getAllUsers: Object
+    getUserById(id: String!): Object!
+    getUserIdByEmail(email: String!): String!
+}
+
+type Mutation{
+    deleteUser(userId: String): String!
+    resetPassword(userId: String!): String!
+    createUser(displayName: String!, mailNickname: String!, userPrincipalName: String!, mobilePhone: String!, password: String!): String!
+    unlockUser(userId: String!): String!
+    disableUser(userId: String!): String!
+    sendMessage(message : MessageInput): MessageOutput!
+    register(username: String!, password: String!, email: String!, role: String!) : User
+    updateUser(id: String, username: String, password: String, email: String, role: String): Object
+    deleteMongoUser(id: String): String!
+}
+
+#input UserData {
+#    username: String!
+#    password: String!
+#    email: String!
+#    role: String!
+#}
+
+type Subscription {
+    subscription(message : MessageInput): MessageOutput
+}
+
+enum InputTypes {
+    YES_NO
+    YES
+    OK
+    EXIT
+    TEXT
+}
+
+input MessageInput{
+    session: String
+    user: String
+    message: String
+    timestamp: Float
+    inputType: String
+}
+
+type MessageOutput{
+    session: String
+    user: String
+    message: String
+    timestamp: Float
+    inputType: String
+}
+
+type AzureUser{
+
+    displayName: String
+    givenName: String
+    surname: String
+    jobTitle: String
+    mail: String
+    mobilePhone: String
+    officeLocation: String
+    userPrincipalName: String
+    id: String
+
+}
+
+type User{
+    username: String
+    email: String
+    password: String
+    role: String
 }
