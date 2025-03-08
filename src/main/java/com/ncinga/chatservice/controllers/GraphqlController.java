@@ -31,13 +31,10 @@ import java.util.Optional;
 public class GraphqlController {
 
     private final ChatSinkManager<Message> chatSinkManager;
-    private final UserOffBoardingService userOffBoardingService;
-    private final PasswordResetService passwordResetService;
-    private final UserOnBoardingService userOnBoardingService;
-    private final UnlockUserService unlockUserService;
     private final ChatService chatService;
-    private final GetUserByEmailService getUserByEmailService;
     private final UserService userService;
+    private final GoogleOperationsService googleOperationsService;
+    private final AzureADService azureADService;
 
     @QueryMapping(name = "ping")
     public String ping() {
@@ -46,12 +43,12 @@ public class GraphqlController {
 
     @QueryMapping(name = "getUserByEmail")
     public AzureUserDto getUserByEmail(@Argument String email) {
-        return getUserByEmailService.getUserByEmail(email);
+        return azureADService.getUserByEmail(email);
     }
 
     @QueryMapping(name = "doesUserExist")
     public boolean doesUserExist(@Argument String email) {
-        return getUserByEmailService.doesUserExist(email);
+        return azureADService.doesUserExist(email);
     }
 
     @QueryMapping(name = "findByRole")
@@ -76,7 +73,12 @@ public class GraphqlController {
 
     @QueryMapping(name = "getUserIdByEmail")
     public String getUserIdByEmail(@Argument String email) {
-        return getUserByEmailService.getUserIdByEmail(email);
+        return azureADService.getUserIdByEmail(email);
+    }
+
+    @QueryMapping(name = "getGoogleUserByEmail")
+    public Object getGoogleUserByEmail(@Argument String email) {
+        return googleOperationsService.getGoogleUserByEmail(email);
     }
 
     @SubscriptionMapping(name = "subscription")
@@ -86,27 +88,27 @@ public class GraphqlController {
 
     @MutationMapping(name = "deleteUser")
     public String deleteUser(@Argument String userId) {
-        return userOffBoardingService.deleteUser(userId);
+        return azureADService.deleteUser(userId);
     }
 
     @MutationMapping(name = "resetPassword")
     public String resetPassword(@Argument String userId) {
-        return passwordResetService.resetPassword(userId);
+        return azureADService.resetPassword(userId);
     }
 
     @MutationMapping(name = "createUser")
     public String createUser(@Argument String displayName, @Argument String mailNickname, @Argument String userPrincipalName, @Argument String password, @Argument String mobilePhone) {
-        return userOnBoardingService.createUser(displayName, mailNickname, userPrincipalName, password, mobilePhone);
+        return azureADService.createUser(displayName, mailNickname, userPrincipalName, password, mobilePhone);
     }
 
     @MutationMapping(name = "unlockUser")
     public String unlockUser(@Argument String userId) {
-        return unlockUserService.enableUserAccount(userId);
+        return azureADService.enableUserAccount(userId);
     }
 
     @MutationMapping(name = "disableUser")
     public String disableUser(@Argument String userId) {
-        return userOffBoardingService.disableUser(userId);
+        return azureADService.disableUser(userId);
     }
 
     @MutationMapping(name = "sendMessage")
@@ -122,7 +124,7 @@ public class GraphqlController {
     }
 
     @MutationMapping(name = "updateUser")
-    public Mono<Map<String, Object>> updateUser(@Argument String id, @Argument String username, @Argument String password, @Argument String email, @Argument String role) {
+    public Object updateUser(@Argument String id, @Argument String username, @Argument String password, @Argument String email, @Argument String role) {
         MongoUserDto user = new MongoUserDto(username, password, email, role);
         return userService.updateUser(id, user);
     }
@@ -132,5 +134,28 @@ public class GraphqlController {
         return userService.deleteMongoUser(id);
     }
 
+    @MutationMapping(name = "createGoogleUser")
+    public String createGoogleUser(@Argument String email, @Argument String firstname, @Argument String lastname, @Argument Boolean isSuspended, @Argument String password, @Argument String phone) {
+        return googleOperationsService.createGoogleUser(email, firstname, lastname, isSuspended, password, phone);
+    }
 
+    @MutationMapping(name = "deleteGoogleUser")
+    public String deleteGoogleUser(@Argument String userId) {
+        return googleOperationsService.deleteGoogleUser(userId);
+    }
+
+    @MutationMapping(name = "enableGoogleUser")
+    public String enableGoogleUser(@Argument String userId) {
+        return googleOperationsService.enableGoogleUser(userId);
+    }
+
+    @MutationMapping(name = "disableGoogleUser")
+    public String disableGoogleUser(@Argument String userId) {
+        return googleOperationsService.disableGoogleUser(userId);
+    }
+
+    @MutationMapping(name = "resetGoogleUserPassword")
+    public String resetGoogleUserPassword(@Argument String userId) {
+        return googleOperationsService.resetGooglePassword(userId);
+    }
 }
