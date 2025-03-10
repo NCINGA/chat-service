@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     public SuccessAuthenticateDto login(AuthenticateDto authenticateDto) throws Exception {
         try {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    authenticateDto.getUsername(),
+                    authenticateDto.getEmail(),
                     authenticateDto.getPassword()
             );
 

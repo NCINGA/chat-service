@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/auth")
 @RequiredArgsConstructor
 @Slf4j
+
 public class AuthenticateController {
 
     private final UserService userService;

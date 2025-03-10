@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class AuthenticateDto {
 
-    private String username;
+    private String email;
     private String password;
     private List<String> roles;
 
