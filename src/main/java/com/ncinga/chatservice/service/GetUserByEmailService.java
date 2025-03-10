@@ -8,4 +8,6 @@ public interface GetUserByEmailService {
     AzureUserDto getUserByEmail(String email);
 
     Boolean doesUserExist(String email);
+
+    String getUserIdByEmail(String email);
 }

@@ -6,8 +6,10 @@ type Query{
     doesUserExist(email: String!): Boolean
     findByRole(email: String!, password: String!, userRole: String!): Object
     doesUserExistByName(username: String): Boolean!
-    getAllUsers: Object!
+    getAllUsers: Object
     getUserById(id: String!): Object!
+    getUserIdByEmail(email: String!): String!
+    getGoogleUserByEmail(email: String!): Object!
 }
 
 type Mutation{
@@ -18,8 +20,13 @@ type Mutation{
     disableUser(userId: String!): String!
     sendMessage(message : MessageInput): MessageOutput!
     register(username: String!, password: String!, email: String!, role: String!) : User
-    updateUser(id: String, username: String, password: String, email: String, role: String): Object
+    updateUser(id: String, username: String, password: String, email: String, role: String): UpdatedUser
     deleteMongoUser(id: String): String!
+    createGoogleUser(email: String!, firstname: String!, lastname: String!, isSuspended: Boolean!, password: String,phone: String!): String
+    deleteGoogleUser(userId: String!): String!
+    enableGoogleUser(userId: String!): String!
+    disableGoogleUser(userId: String!): String!
+    resetGoogleUserPassword(userId: String!): String!
 }
 
 #input UserData {
@@ -72,6 +79,14 @@ type AzureUser{
 }
 
 type User{
+    username: String
+    email: String
+    password: String
+    role: String
+}
+
+type UpdatedUser{
+    id: String
     username: String
     email: String
     password: String
