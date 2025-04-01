@@ -100,10 +100,11 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
             }
 
+
             if (sessionIndex.get() == 6) {
                 Question username = commonPool.getAnswerForQuestion(message.getSession(), "4");
-                Question password = commonPool.getAnswerForQuestion(message.getSession(), "5");
-                log.info("user name and password {} ,{}", username.getAnswer(), password.getAnswer());
+//                Question password = commonPool.getAnswerForQuestion(message.getSession(), "5");
+                log.info("user name and password {} ", username.getAnswer());
 //                String response1 = passwordResetService.resetPassword(username.getAnswer());
                 String response = googleOperationsService.resetUserPassword(username.getAnswer());
 
