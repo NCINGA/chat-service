@@ -4,6 +4,7 @@ import com.ncinga.chatservice.config.ChatSinkManager;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.Question;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
+import com.ncinga.chatservice.service.GoogleOperationsService;
 import com.ncinga.chatservice.service.PasswordResetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     private final CommonPool commonPool;
     private final List<WorkFlowQuestion> questions;
     private final PasswordResetService passwordResetService;
+    private final GoogleOperationsService googleOperationsService;
 
 
     private String logUser = "shehan";
@@ -102,7 +104,8 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 Question username = commonPool.getAnswerForQuestion(message.getSession(), "4");
                 Question password = commonPool.getAnswerForQuestion(message.getSession(), "5");
                 log.info("user name and password {} ,{}", username.getAnswer(), password.getAnswer());
-                String response = passwordResetService.resetPassword(username.getAnswer(), password.getAnswer());
+//                String response1 = passwordResetService.resetPassword(username.getAnswer());
+                String response = googleOperationsService.resetUserPassword(username.getAnswer());
 
                 sessionIndex.set(9);
                 nextQuestion = questions.get(sessionIndex.get());

@@ -35,6 +35,7 @@ public class GraphqlController {
     private final UserService userService;
     private final GoogleOperationsService googleOperationsService;
     private final AzureADService azureADService;
+    private final JwtService jwtService;
 
     @QueryMapping(name = "ping")
     public String ping() {
@@ -76,9 +77,15 @@ public class GraphqlController {
         return azureADService.getUserIdByEmail(email);
     }
 
-    @QueryMapping(name = "getGoogleUserByEmail")
-    public Object getGoogleUserByEmail(@Argument String email) {
-        return googleOperationsService.getGoogleUserByEmail(email);
+
+    @QueryMapping(name = "getGoogleToken")
+    public String getGoogleToken() {
+        return jwtService.generateGoogleToken();
+    }
+
+    @QueryMapping(name = "getUserInfo")
+    public Object getUserInfo(@Argument String userEmail) {
+        return googleOperationsService.getUserInfo(userEmail);
     }
 
     @SubscriptionMapping(name = "subscription")
@@ -134,28 +141,29 @@ public class GraphqlController {
         return userService.deleteMongoUser(id);
     }
 
-    @MutationMapping(name = "createGoogleUser")
-    public String createGoogleUser(@Argument String email, @Argument String firstname, @Argument String lastname, @Argument Boolean isSuspended, @Argument String password, @Argument String phone) {
-        return googleOperationsService.createGoogleUser(email, firstname, lastname, isSuspended, password, phone);
+    @MutationMapping(name = "resetGoogleUserPassword")
+    public String resetUserPassword(@Argument String userEmail) {
+        return googleOperationsService.resetUserPassword(userEmail);
     }
 
-    @MutationMapping(name = "deleteGoogleUser")
-    public String deleteGoogleUser(@Argument String userId) {
-        return googleOperationsService.deleteGoogleUser(userId);
+    @MutationMapping(name = "createGoogleUser")
+    public String createGoogleUser(String firstName, String lastName, String email, String password) {
+        return googleOperationsService.createUser(firstName, lastName, email, password);
     }
 
     @MutationMapping(name = "enableGoogleUser")
-    public String enableGoogleUser(@Argument String userId) {
-        return googleOperationsService.enableGoogleUser(userId);
+    public String enableGoogleUser(@Argument String userEmail) {
+        return googleOperationsService.enableUser(userEmail);
     }
 
     @MutationMapping(name = "disableGoogleUser")
-    public String disableGoogleUser(@Argument String userId) {
-        return googleOperationsService.disableGoogleUser(userId);
+    public String disableGoogleUser(@Argument String userEmail) {
+        return googleOperationsService.disableUser(userEmail);
     }
 
-    @MutationMapping(name = "resetGoogleUserPassword")
-    public String resetGoogleUserPassword(@Argument String userId) {
-        return googleOperationsService.resetGooglePassword(userId);
+    @MutationMapping(name = "deleteGoogleUser")
+    public String deleteGoogleUser(@Argument String userEmail) {
+        return googleOperationsService.deleteUser(userEmail);
     }
+
 }

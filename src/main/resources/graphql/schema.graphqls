@@ -9,7 +9,8 @@ type Query{
     getAllUsers: Object
     getUserById(id: String!): Object!
     getUserIdByEmail(email: String!): String!
-    getGoogleUserByEmail(email: String!): Object!
+    getGoogleToken: String!
+    getUserInfo(userEmail: String!): Object
 }
 
 type Mutation{
@@ -22,11 +23,11 @@ type Mutation{
     register(username: String!, password: String!, email: String!, role: String!) : User
     updateUser(id: String, username: String, password: String, email: String, role: String): UpdatedUser
     deleteMongoUser(id: String): String!
-    createGoogleUser(email: String!, firstname: String!, lastname: String!, isSuspended: Boolean!, password: String,phone: String!): String
-    deleteGoogleUser(userId: String!): String!
-    enableGoogleUser(userId: String!): String!
-    disableGoogleUser(userId: String!): String!
-    resetGoogleUserPassword(userId: String!): String!
+    resetGoogleUserPassword(userEmail: String!): String!
+    enableGoogleUser(userEmail: String!): String!
+    disableGoogleUser(userEmail: String!): String!
+    deleteGoogleUser(userEmail: String!): String!
+    createGoogleUser(firstName: String!, lastName: String!, email: String!, password: String!): String!
 }
 
 #input UserData {
@@ -54,6 +55,7 @@ input MessageInput{
     message: String
     timestamp: Float
     inputType: String
+    args: Object
 }
 
 type MessageOutput{
@@ -62,6 +64,7 @@ type MessageOutput{
     message: String
     timestamp: Float
     inputType: String
+    args: Object
 }
 
 type AzureUser{

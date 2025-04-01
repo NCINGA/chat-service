@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -28,12 +31,22 @@ public class WebSecurityConfig {
 
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll())
+                        .requestMatchers(
+                                "/auth/**",
+                                "/ws/**",
+                                "/graphql/**",
+                                "/role/welcome",
+                                "/info/**"
+                        )
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .httpBasic(Customizer.withDefaults())
+                .oauth2Login(Customizer.withDefaults())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
-                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -45,6 +58,7 @@ public class WebSecurityConfig {
         daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
         return new ProviderManager(daoAuthenticationProvider);
     }
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {

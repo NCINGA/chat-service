@@ -20,10 +20,10 @@ public class PasswordReset implements IntentWorkflow {
         List<WorkFlowQuestion> questions = new ArrayList<>();
         questions.add(new WorkFlowQuestion("Got it... To continue this operation login is required", YES_NO));
         questions.add(new WorkFlowQuestion("Thank You...", TEXT));
-        questions.add(new WorkFlowQuestion("Tell, me what is your username?", TEXT));
+        questions.add(new WorkFlowQuestion("Tell me what is your username?", TEXT));
         questions.add(new WorkFlowQuestion("What is your password ?", PASSWORD));
-        questions.add(new WorkFlowQuestion("Enter password change username : ", TEXT));
-        questions.add(new WorkFlowQuestion("Enter new password : ", PASSWORD));
+        questions.add(new WorkFlowQuestion("Please enter the user name of the user where you want to change the password : ", TEXT));
+        questions.add(new WorkFlowQuestion("Please enter new password : ", PASSWORD));
         questions.add(new WorkFlowQuestion("Authenticating......", TEXT));
         questions.add(new WorkFlowQuestion("Authenticating Success", TEXT));
         questions.add(new WorkFlowQuestion("Authenticating Failed", TEXT));

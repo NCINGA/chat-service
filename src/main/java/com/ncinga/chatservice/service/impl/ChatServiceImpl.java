@@ -35,6 +35,7 @@ public class ChatServiceImpl implements ChatService {
     private final UserOffBoardingService userOffBoardingService;
     private final UnlockUserService unlockUserService;
     private final GetUserByEmailService getUserByEmailService;
+    private final GoogleOperationsService googleOperationsService;
     private List<WorkFlowQuestion> questions = new ArrayList<>();
     AtomicReference<String> intent = new AtomicReference<>("");
 
@@ -72,7 +73,7 @@ public class ChatServiceImpl implements ChatService {
             sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
             return;
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, passwordResetService, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService, googleOperationsService);
         workflowProcess.execute(sessionIndex, message);
 
     }
