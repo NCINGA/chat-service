@@ -6,10 +6,11 @@ import com.ncinga.chatservice.dto.WorkFlowQuestion;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ncinga.chatservice.service.impl.workflow.Dictionary.*;
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.YES_NO;
 
+public class PasswordResetGoogle implements IntentWorkflow {
 
-public class PasswordReset implements IntentWorkflow {
     @Override
     public Message conversation(Message message) {
         return new Message(null, null, null, 0, null);
@@ -22,10 +23,6 @@ public class PasswordReset implements IntentWorkflow {
         questions.add(new WorkFlowQuestion("Are you sure you want to change the password of this user", YES_NO));
         questions.add(new WorkFlowQuestion("Processing....", TEXT));
         return questions;
+
     }
 }
-
-/*
-
-
- */

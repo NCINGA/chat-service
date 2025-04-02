@@ -5,7 +5,6 @@ import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.Question;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
 import com.ncinga.chatservice.service.GoogleOperationsService;
-import com.ncinga.chatservice.service.PasswordResetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PasswordResetWorkflow implements WorkflowProcess {
+public class GooglePasswordResetWorkflow implements WorkflowProcess{
     private final ChatSinkManager<Message> chatSinkManager;
     private final CommonPool commonPool;
     private final List<WorkFlowQuestion> questions;
@@ -40,24 +39,15 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         commonPool.getUserResponses().get(message.getSession()).put(questions.get(index).getQuestion(), message.getMessage());
         commonPool.addQuestionWithAnswer(message.getSession(), String.valueOf(index), questions.get(index).getQuestion(), message.getMessage());
 
-
-        if (index == 0) {
-            // Move to confirmation question
-            sessionIndex.incrementAndGet();
-            nextQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
-            return;
-        }
-
-        if (index == 1) {
+        if (index == 2) {
             if (message.getMessage().equalsIgnoreCase("yes")) {
                 // Set index to the "Processing" message
-                sessionIndex.set(2);
+                sessionIndex.set(3);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
 
                 // Get the email to reset password from previous question
-                Question emailQuestion = commonPool.getAnswerForQuestion(message.getSession(), "0");
+                Question emailQuestion = commonPool.getAnswerForQuestion(message.getSession(), "1");
                 log.info("Resetting password for user: {}", emailQuestion.getAnswer());
                 String response = googleOperationsService.resetUserPassword(emailQuestion.getAnswer());
 
@@ -74,6 +64,13 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sendQuestion(message.getSession(), "Please respond with 'yes' or 'no'. Are you sure you want to change the password of this user?", TEXT);
                 return;
             }
+        }
+
+        // Continue to next question if there are more
+        if (index + 1 < questions.size()) {
+            sessionIndex.incrementAndGet();
+            nextQuestion = questions.get(sessionIndex.get());
+            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
         }
     }
 
