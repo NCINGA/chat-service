@@ -11,6 +11,6 @@ public class GoogleRequestUserDto {
     private String id;
     private String email;
     private String fullName;
-    private Object phoneNumber;
+    private String phoneNumber;
     private String status;
 }

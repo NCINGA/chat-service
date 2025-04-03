@@ -11,6 +11,7 @@ type Query{
     getUserIdByEmail(email: String!): String!
     getGoogleToken: String!
     getUserInfo(userEmail: String!): Object
+    generateOTP: String!
 }
 
 type Mutation{
@@ -28,6 +29,7 @@ type Mutation{
     disableGoogleUser(userEmail: String!): String!
     deleteGoogleUser(userEmail: String!): String!
     createGoogleUser(firstName: String!, lastName: String!, email: String!, password: String!): String!
+    send(number: String!): String!
 }
 
 #input UserData {

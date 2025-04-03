@@ -1,5 +1,6 @@
 package com.ncinga.chatservice.service.impl;
 
+import com.ncinga.chatservice.dto.TokenResponse;
 import com.ncinga.chatservice.service.SMSService;
 import com.ncinga.chatservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 @Slf4j
@@ -24,23 +26,34 @@ public class SMSServiceImpl implements SMSService {
     private String url;
 
     @Override
-    public boolean send(String otp, String number) {
-        Object tokenResponse = tokenService.getAuthToken();
+    public String generateOTP() {
+        String numbers = "1234567890";
+        Random random = new Random();
+        char[] otp = new char[4];
+        for(int i = 0; i< 4 ; i++) {
+            otp[i] = numbers.charAt(random.nextInt(numbers.length()));
+        }
+        return String.valueOf(otp);
+    }
+    @Override
+    public String send(String number) {
         try {
-
+            String otp = generateOTP();
+            TokenResponse tokenResponse = tokenService.getAuthToken();
             Map<String, Object> payload = new HashMap<>();
+            String otpMessage  = "Your OTP is " + otp;
             payload.put("phone_number", number);
-            payload.put("message_body", otp);
+            payload.put("message_body", otpMessage);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth("test");
+            headers.setBearerAuth(tokenResponse.getAccessToken());
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> entity = new HttpEntity<>(payload, headers);
             log.info("Request : {}", entity.getBody());
             ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
             log.info("Response : {}", response);
-            return true;
+            return otp;
 
         } catch (RestClientException e) {
             log.error("Error during REST call: {}", e.getMessage());
@@ -49,6 +62,6 @@ public class SMSServiceImpl implements SMSService {
         }
 
 
-        return false;
+        return "error";
     }
 }

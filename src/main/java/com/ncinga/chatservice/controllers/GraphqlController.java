@@ -36,6 +36,7 @@ public class GraphqlController {
     private final GoogleOperationsService googleOperationsService;
     private final AzureADService azureADService;
     private final JwtService jwtService;
+    private final SMSService smsService;
 
     @QueryMapping(name = "ping")
     public String ping() {
@@ -166,4 +167,13 @@ public class GraphqlController {
         return googleOperationsService.deleteUser(userEmail);
     }
 
+    @QueryMapping(name = "generateOTP")
+    public String generateOTP() {
+        return smsService.generateOTP();
+    }
+
+    @MutationMapping(name = "send")
+    public String send(@Argument String number) {
+        return smsService.send(number);
+    }
 }

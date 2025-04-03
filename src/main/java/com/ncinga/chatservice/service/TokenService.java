@@ -1,5 +1,7 @@
 package com.ncinga.chatservice.service;
 
+import com.ncinga.chatservice.dto.TokenResponse;
+
 public interface TokenService {
-    public Object getAuthToken();
+    public TokenResponse getAuthToken();
 }

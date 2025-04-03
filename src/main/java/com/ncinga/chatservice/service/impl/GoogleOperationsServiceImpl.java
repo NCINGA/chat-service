@@ -20,6 +20,7 @@ import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.model.User;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,18 +71,46 @@ public class GoogleOperationsServiceImpl implements GoogleOperationsService {
     @Override
     public GoogleRequestUserDto getUserInfo(String userEmail) {
         try {
-            // Fetch the user details
+            // Get user without field restrictions
             User user = directory.users().get(userEmail).execute();
+
+            // Try to get phone as a direct property
+            String phoneNumber = null;
+
+            // Check if there's a "recoveryPhone" property
+            try {
+                Object recoveryPhone = user.get("recoveryPhone");
+                if (recoveryPhone != null) {
+                    phoneNumber = recoveryPhone.toString();
+                    if (phoneNumber.startsWith("+")) {
+                        phoneNumber = phoneNumber.substring(1);
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore and try other methods
+            }
+
+            // If still null, try to inspect what we have in the user object
+            if (phoneNumber == null) {
+                // Convert the entire user object to JSON and extract what we need
+                String userJson = user.toString();
+                System.out.println("User JSON: " + userJson);
+
+                // You might need to parse this JSON to find phone information
+                // This is just a placeholder to show what's available
+            }
 
             return new GoogleRequestUserDto(
                     user.getId(),
                     user.getPrimaryEmail(),
                     user.getName().getFullName(),
-                    user.getPhones(),
+                    phoneNumber,
                     user.getSuspended() ? "Suspended" : "Active"
             );
 
         } catch (IOException e) {
+            System.out.println("API Error: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
