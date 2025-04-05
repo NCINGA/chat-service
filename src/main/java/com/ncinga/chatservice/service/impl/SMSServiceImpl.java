@@ -60,8 +60,33 @@ public class SMSServiceImpl implements SMSService {
         } catch (Exception e) {
             log.error("Unexpected error: {}", e.getMessage());
         }
-
-
         return "error";
     }
+
+    @Override
+    public String sendMessage(String number, String message){
+        try {
+            TokenResponse tokenResponse = tokenService.getAuthToken();
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("phone_number", number);
+            payload.put("message_body", message);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(tokenResponse.getAccessToken());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> entity = new HttpEntity<>(payload, headers);
+            log.info("Request : {}", entity.getBody());
+            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
+            log.info("Response : {}", response);
+            return message;
+
+        } catch (RestClientException e) {
+            log.error("Error during REST call: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage());
+        }
+        return "error";
+    }
+
 }

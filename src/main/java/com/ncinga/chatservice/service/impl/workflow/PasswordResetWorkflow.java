@@ -1,11 +1,13 @@
 package com.ncinga.chatservice.service.impl.workflow;
 
 import com.ncinga.chatservice.config.ChatSinkManager;
+import com.ncinga.chatservice.dto.GoogleRequestUserDto;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.Question;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
 import com.ncinga.chatservice.service.GoogleOperationsService;
 import com.ncinga.chatservice.service.PasswordResetService;
+import com.ncinga.chatservice.service.SMSService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     private final CommonPool commonPool;
     private final List<WorkFlowQuestion> questions;
     private final GoogleOperationsService googleOperationsService;
+    private final SMSService smsService;
 
     @Override
     public void execute(AtomicInteger sessionIndex, Message message) {
@@ -41,40 +44,134 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         commonPool.addQuestionWithAnswer(message.getSession(), String.valueOf(index), questions.get(index).getQuestion(), message.getMessage());
 
 
-        if (index == 0) {
-            // Move to confirmation question
-            sessionIndex.incrementAndGet();
-            nextQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
-            return;
-        }
+        if(index == 0) {
 
-        if (index == 1) {
-            if (message.getMessage().equalsIgnoreCase("yes")) {
-                // Set index to the "Processing" message
-                sessionIndex.set(2);
+            String email =  message.getMessage();
+            log.info("Email : {}", email);
+
+            commonPool.addEmail(message.getSession(), email);
+            String tempEmail = commonPool.getEmail(message.getSession());
+            log.info("Email : {}", tempEmail);
+
+            GoogleRequestUserDto user = googleOperationsService.getUserInfo(email);
+
+            if(user == null) {
+                sessionIndex.set(5);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
 
-                // Get the email to reset password from previous question
-                Question emailQuestion = commonPool.getAnswerForQuestion(message.getSession(), "0");
-                log.info("Resetting password for user: {}", emailQuestion.getAnswer());
-                String response = googleOperationsService.resetUserPassword(emailQuestion.getAnswer());
+                sessionIndex.set(0);
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
 
-                // Send the result and thank you message
-                sendQuestion(message.getSession(), response, TEXT);
-                clearSessionWithSayThanks(message.getSession(), TEXT);
-                return;
-            } else if (message.getMessage().equalsIgnoreCase("no")) {
-                // If user says no, end the workflow with thank you
-                clearSessionWithSayThanks(message.getSession(), TEXT);
-                return;
+                String correctEmail = message.getMessage();
+                commonPool.removeEmail(message.getSession());
+                commonPool.addEmail(message.getSession(), correctEmail);
+                String newEmail = commonPool.getEmail(message.getSession());
+                log.info("Email : {}", newEmail);
+
+
+                commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
+                commonPool.getUserResponses().get(message.getSession()).put(questions.get(0).getQuestion(), email);
+                commonPool.addQuestionWithAnswer(message.getSession(), "0", questions.get(0).getQuestion(), email);
+
             } else {
-                // If response is neither yes nor no, ask again
-                sendQuestion(message.getSession(), "Please respond with 'yes' or 'no'. Are you sure you want to change the password of this user?", TEXT);
-                return;
+                String number = user.getPhoneNumber();
+                log.info("Phone number : {}", number);
+                String otp = smsService.send(number);
+                log.info("OTP : {}", otp);
+                commonPool.addOTP(message.getSession(), otp);
+
+                sessionIndex.incrementAndGet();
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
             }
         }
+
+        if(index == 1){
+            String inputOTP = message.getMessage();
+            log.info("Entered OTP : {}", inputOTP);
+            String generatedOTP = commonPool.getOTP(message.getSession());
+            log.info("Generated OTP : {}", generatedOTP);
+
+            if (generatedOTP.equals(inputOTP)) {
+                log.info("OTP verified!");
+                sessionIndex.set(3);
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+
+                Question email = commonPool.getAnswerForQuestion(message.getSession(), "0");
+
+                if(email != null) {
+                    String response = googleOperationsService.resetUserPassword(email.getAnswer());
+                    log.info("Response : {}", response);
+
+                    GoogleRequestUserDto user = googleOperationsService.getUserInfo(email.getAnswer());
+                    String phoneNumber = user.getPhoneNumber();
+                    smsService.sendMessage(phoneNumber, response);
+                    sendQuestion(message.getSession(), response, TEXT);
+                    clearSessionWithSayThanks(message.getSession(), TEXT);
+
+                } else {
+
+                    String correctEmail = commonPool.getEmail(message.getSession());
+                    log.info("Aluth Email : {}", correctEmail);
+                    String response = googleOperationsService.resetUserPassword(correctEmail);
+                    log.info("Response : {}", response);
+
+                    smsService.send(response);
+                    sendQuestion(message.getSession(), response, TEXT);
+                    clearSessionWithSayThanks(message.getSession(), TEXT);
+
+                    log.error("No valid email found for password reset");
+                    sendQuestion(message.getSession(), "Error: No valid email found", TEXT);
+                    clearSessionWithSayThanks(message.getSession(), TEXT);
+                }
+
+            } else{
+                sessionIndex.set(2);
+                log.error("OTP not verified!");
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+            }
+        }
+
+//        if (index == 3){
+//            Question email = commonPool.getAnswerForQuestion(message.getSession(), questions.get(0).getQuestion());
+//
+//            String response = googleOperationsService.resetUserPassword(email.getAnswer());
+//            log.info("Response : {}", response);
+//
+//            sendQuestion(message.getSession(), response, TEXT);
+//            clearSessionWithSayThanks(message.getSession(), TEXT);
+//
+//            commonPool.removeSessionData(message.getSession());
+//
+//        }
+
+
+
+//        String email1 = commonPool.getUserData(message.getSession(), "email");
+//        // Verify OTP (mock implementation)
+//        boolean isOtpValid = otpService.validateOtp(email1, enteredOtp);
+//
+//        if (isOtpValid) {
+//            // OTP valid, move to confirmation question
+//            sessionIndex.set(3); // Move to "Are you sure" question
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+//        } else {
+//            // OTP invalid, send error message and retry
+//            sessionIndex.set(2); // Set to invalid OTP message
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+//
+//            // Move back to OTP entry
+//            sessionIndex.set(1);
+//            nextQuestion = questions.get(sessionIndex.get());
+//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+//        }
+
     }
 
     private void clearSession(String session) {

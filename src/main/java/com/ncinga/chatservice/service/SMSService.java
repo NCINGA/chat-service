@@ -4,4 +4,6 @@ public interface SMSService {
     public String send(String number);
 
     public String generateOTP();
+
+    String sendMessage(String number, String message);
 }

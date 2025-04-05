@@ -62,7 +62,7 @@ public class GoogleOperationsServiceImpl implements GoogleOperationsService {
             user.setChangePasswordAtNextLogin(true); // Force password change
 
             directory.users().update(userEmail, user).execute();
-            return "Password reset successfully " + newPassword;
+            return "Password reset successfully. Your temporary password is: " + newPassword;
         } catch (IOException e) {
             return "Error resetting password: " + e.getMessage();
         }

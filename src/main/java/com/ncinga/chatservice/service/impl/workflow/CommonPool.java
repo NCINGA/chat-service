@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.apache.hc.client5.http.async.methods.SimpleRequestBuilder.put;
+
 @Data
 @Slf4j
 @Service
@@ -18,15 +21,54 @@ public class CommonPool {
     private final Map<String, Map<String, List<Question>>> questionPool = new HashMap<>();
     private final Map<String, AtomicInteger> sessionIndices = new HashMap<>();
     private final Map<String, Map<String, String>> userResponses = new HashMap<>();
+    private final Map<String, String> userOTPPool = new HashMap<>();
     private boolean authSuccess = false;
+    private final Map<String, String> emailPool = new HashMap<>();
 
 
     public void setAuth(boolean auth) {
         authSuccess = auth;
     }
 
+
     public AtomicInteger getSessionIndex(String session) {
         return sessionIndices.computeIfAbsent(session, k -> new AtomicInteger(-1));
+    }
+
+    public void addOTP(String session, String otp) {
+        log.info("Adding OTP for session '{}': otp = '{}'", session, otp);
+        userOTPPool.put(session, otp);
+    }
+
+    public String getOTP(String session) {
+        String otp = userOTPPool.get(session);
+        log.info("session id {}, OTP {}", session, otp);
+        return otp;
+    }
+
+    public void removeOTP(String session) {
+        if (userOTPPool.containsKey(session)) {
+            userOTPPool.remove(session);
+            log.info("Removed OTP for session '{}'", session);
+        }
+    }
+
+    public void addEmail(String session, String correctEmail) {
+        log.info("Adding OTP for session '{}': otp = '{}'", session, correctEmail);
+        emailPool.put(session, correctEmail);
+    }
+
+    public String getEmail(String session) {
+        String email = emailPool.get(session);
+        log.info("session id {}, Email {}", session, email);
+        return email;
+    }
+
+    public void removeEmail(String session) {
+        if (emailPool.containsKey(session)) {
+            emailPool.remove(session);
+            log.info("Removed Email for session '{}'", session);
+        }
     }
 
     public void addQuestionWithAnswer(String session, String questionId, String question, String answer) {
