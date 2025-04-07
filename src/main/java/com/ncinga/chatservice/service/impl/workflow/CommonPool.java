@@ -106,7 +106,7 @@ public class CommonPool {
             List<Question> questions = userQuestions.get(questionId);
 
             if (questions != null && !questions.isEmpty()) {
-                return questions.get(0);
+                return questions.get(questions.size() - 1);
             } else {
                 log.warn("No question found with questionId: '{}' for user: '{}'", questionId, session);
             }

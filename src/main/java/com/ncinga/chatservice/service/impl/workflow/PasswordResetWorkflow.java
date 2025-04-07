@@ -41,11 +41,10 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         log.info("message : {}", message);
         commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
         commonPool.getUserResponses().get(message.getSession()).put(questions.get(index).getQuestion(), message.getMessage());
-        commonPool.addQuestionWithAnswer(message.getSession(), String.valueOf(index), questions.get(index).getQuestion(), message.getMessage());
+        // commonPool.addQuestionWithAnswer(message.getSession(), String.valueOf(index), questions.get(index).getQuestion(), message.getMessage());
 
 
         if(index == 0) {
-
             String email =  message.getMessage();
             log.info("Email : {}", email);
 
@@ -71,9 +70,11 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 log.info("Email : {}", newEmail);
 
 
+                /*
                 commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
                 commonPool.getUserResponses().get(message.getSession()).put(questions.get(0).getQuestion(), email);
                 commonPool.addQuestionWithAnswer(message.getSession(), "0", questions.get(0).getQuestion(), email);
+                */
 
             } else {
                 String number = user.getPhoneNumber();
@@ -85,6 +86,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.incrementAndGet();
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                commonPool.addQuestionWithAnswer(message.getSession(), String.valueOf(index), questions.get(index).getQuestion(), message.getMessage());
             }
         }
 
