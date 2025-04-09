@@ -46,7 +46,7 @@ public class ChatServiceImpl implements ChatService {
         log.info("Chat message received from session: {}", message.getSession());
         AtomicInteger sessionIndex = commonPool.getSessionIndex(message.getSession());
         WorkflowProcess workflowProcess = null;
-        if (Dictionary.GREETS.contains(message.getMessage().toLowerCase())) {
+        if (Dictionary.GREETS.contains(message.getMessage().toLowerCase()) || sessionIndex.get() == -1) {
             if (sessionIndex.get() == -1) {
                 sessionIndex.set(-2);
                 String randomGreeting = Dictionary.GREETING_MESSAGE.get(
@@ -77,7 +77,6 @@ public class ChatServiceImpl implements ChatService {
         }
         workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService, googleOperationsService, smsService);
         workflowProcess.execute(sessionIndex, message);
-
     }
 
     private void clearSession(String session) {

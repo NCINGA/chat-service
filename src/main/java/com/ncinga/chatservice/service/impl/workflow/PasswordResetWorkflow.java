@@ -28,6 +28,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     private final List<WorkFlowQuestion> questions;
     private final GoogleOperationsService googleOperationsService;
     private final SMSService smsService;
+    private final static String ACCOUNT_SUSPENDED = "Suspended";
 
     @Override
     public void execute(AtomicInteger sessionIndex, Message message) {
@@ -75,8 +76,20 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 commonPool.getUserResponses().get(message.getSession()).put(questions.get(0).getQuestion(), email);
                 commonPool.addQuestionWithAnswer(message.getSession(), "0", questions.get(0).getQuestion(), email);
                 */
-
             } else {
+                if (user.getStatus() != null && user.getStatus().equals(ACCOUNT_SUSPENDED)) {
+                    sessionIndex.set(-2);
+
+                    WorkFlowQuestion SecondQuestion = questions.get(questions.size() - 2);
+                    sendQuestion(message.getSession(), SecondQuestion.getQuestion(), SecondQuestion.getInputType());
+
+                    WorkFlowQuestion firstQuestion = questions.get(questions.size() - 1);
+                    sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
+                    // commonPool.getSessionIndices().remove(message.getSession());
+
+                    return;
+                }
+
                 String number = user.getPhoneNumber();
                 log.info("Phone number : {}", number);
                 String otp = smsService.send(number);
