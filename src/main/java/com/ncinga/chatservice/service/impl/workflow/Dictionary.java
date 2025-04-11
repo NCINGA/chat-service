@@ -18,7 +18,7 @@ public abstract class Dictionary {
     );
     public static final String RESET_PASSWORD = "reset_password";
     public static final String UNLOCK_MICROSOFT_ACCOUNT = "unlock_microsoft_account";
-    public static final String KB_ARTICLE_ASSISTANCE = "kb_article_assistance";
+    public static final String KB_ARTICLE_ASSISTANCE = "UNKNOWN";
     public static final String EMPLOYEE_ONBOARDING = "employee_onboarding";
     public static final String EMPLOYEE_OFFBOARDING = "employee_offboarding";
     public static final String GROUP_EMAIL_MANAGEMENT = "group_email_management";

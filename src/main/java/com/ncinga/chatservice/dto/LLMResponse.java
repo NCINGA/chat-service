@@ -12,4 +12,6 @@ public class LLMResponse {
     @JsonProperty("use_query")
     private String useQuery;
     private String intent;
+    @JsonProperty("response_text")
+    private String responseText;
 }

@@ -24,6 +24,7 @@ public class CommonPool {
     private final Map<String, String> userOTPPool = new HashMap<>();
     private boolean authSuccess = false;
     private final Map<String, String> emailPool = new HashMap<>();
+    private final Map<String, String> inputOTPPool = new HashMap<>();
 
 
     public void setAuth(boolean auth) {
@@ -68,6 +69,24 @@ public class CommonPool {
         if (emailPool.containsKey(session)) {
             emailPool.remove(session);
             log.info("Removed Email for session '{}'", session);
+        }
+    }
+
+    public void addInputOTP(String session, String otp) {
+        log.info("Adding OTP for session '{}': otp = '{}", session, otp);
+        inputOTPPool.put(session, otp);
+    }
+
+    public String getInputOTP(String session) {
+        String otp = inputOTPPool.get(session);
+        log.info("session id {}, input OTP {}", session, otp);
+        return otp;
+    }
+
+    public void removeInputOTP(String session) {
+        if (inputOTPPool.containsKey(session)) {
+            inputOTPPool.remove(session);
+            log.info("Removed user input OTP for session '{}'", session);
         }
     }
 
