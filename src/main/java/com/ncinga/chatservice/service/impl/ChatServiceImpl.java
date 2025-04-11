@@ -68,12 +68,15 @@ public class ChatServiceImpl implements ChatService {
             IntentWorkflow intentWorkflow = IntentFactory.getIntent(response.getIntent());
             questions = intentWorkflow.getQuestions();
             if (response.getIntent().equalsIgnoreCase(KB_ARTICLE_ASSISTANCE)) {
-                clearSession(message.getSession());
+//                clearSession(message.getSession());
+                unknownIntent(message.getSession(), response);
+
+            } else {
+                sessionIndex.set(0);
+                WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
+                return;
             }
-            sessionIndex.set(0);
-            WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
-            sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
-            return;
         }
         workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService, googleOperationsService, smsService);
         workflowProcess.execute(sessionIndex, message);
@@ -87,6 +90,10 @@ public class ChatServiceImpl implements ChatService {
         Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), type);
         chatSinkManager.getChatSink().get(session).tryEmitNext(questionMessage);
         log.info("Sent question to {}: {}", session, question);
+    }
+
+    private void unknownIntent(String session, LLMResponse response) {
+        sendQuestion(session, response.getResponseText(), TEXT);
     }
 
 
