@@ -5,7 +5,6 @@ import com.ncinga.chatservice.dto.AuthenticateDto;
 import com.ncinga.chatservice.dto.MongoUserDto;
 import com.ncinga.chatservice.dto.SuccessAuthenticateDto;
 import com.ncinga.chatservice.exception.GeneralException;
-import com.ncinga.chatservice.exception.UserAlreadyExistsException;
 import com.ncinga.chatservice.exception.UserNotFoundException;
 import com.ncinga.chatservice.repository.RoleRepository;
 import com.ncinga.chatservice.repository.UserRepository;

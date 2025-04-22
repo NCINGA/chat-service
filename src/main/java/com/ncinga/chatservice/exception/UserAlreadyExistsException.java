@@ -8,3 +8,4 @@ public class UserAlreadyExistsException extends BaseException {
         super(responseCode);
     }
 }
+
