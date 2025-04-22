@@ -46,7 +46,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
 
         if(index == 0) {
-            String email =  message.getMessage();
+            String email =  message.getMessage().trim();
             log.info("Email : {}", email);
 
             commonPool.addEmail(message.getSession(), email);
