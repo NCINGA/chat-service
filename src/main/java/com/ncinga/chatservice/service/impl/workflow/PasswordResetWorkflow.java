@@ -79,14 +79,13 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 */
             } else {
                 if (user.getStatus() != null && user.getStatus().equals(ACCOUNT_SUSPENDED)) {
-                    sessionIndex.set(-2);
+                    sessionIndex.set(6);
 
-                    WorkFlowQuestion SecondQuestion = questions.get(questions.size() - 2);
-                    sendQuestion(message.getSession(), SecondQuestion.getQuestion(), SecondQuestion.getInputType());
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                    log.info("Account suspended");
 
-                    WorkFlowQuestion firstQuestion = questions.get(questions.size() - 1);
-                    sendQuestion(message.getSession(), firstQuestion.getQuestion(), firstQuestion.getInputType());
-                    // commonPool.getSessionIndices().remove(message.getSession());
+                    clearSessionWithSayThanks(message.getSession(), TEXT);
 
                     return;
                 }
