@@ -68,9 +68,7 @@ public class ChatServiceImpl implements ChatService {
             IntentWorkflow intentWorkflow = IntentFactory.getIntent(response.getIntent());
             questions = intentWorkflow.getQuestions();
             if (response.getIntent().equalsIgnoreCase(KB_ARTICLE_ASSISTANCE)) {
-//                clearSession(message.getSession());
-                unknownIntent(message.getSession(), response);
-
+                log.info("Unknown intent detected");
             } else {
                 sessionIndex.set(0);
                 WorkFlowQuestion firstQuestion = questions.get(sessionIndex.get());
@@ -78,7 +76,7 @@ public class ChatServiceImpl implements ChatService {
                 return;
             }
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(intent.get(), chatSinkManager, commonPool, questions, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService, googleOperationsService, smsService);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(llmService, intent.get(), chatSinkManager, commonPool, questions, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService, googleOperationsService, smsService);
         workflowProcess.execute(sessionIndex, message);
     }
 

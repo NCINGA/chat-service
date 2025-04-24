@@ -71,12 +71,6 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 String newEmail = commonPool.getEmail(message.getSession());
                 log.info("Email : {}", newEmail);
 
-
-                /*
-                commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
-                commonPool.getUserResponses().get(message.getSession()).put(questions.get(0).getQuestion(), email);
-                commonPool.addQuestionWithAnswer(message.getSession(), "0", questions.get(0).getQuestion(), email);
-                */
             } else {
                 if (user.getStatus() != null && user.getStatus().equals(ACCOUNT_SUSPENDED)) {
                     sessionIndex.set(6);
@@ -212,41 +206,6 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             }
         }
 
-//        if (index == 3){
-//            Question email = commonPool.getAnswerForQuestion(message.getSession(), questions.get(0).getQuestion());
-//
-//            String response = googleOperationsService.resetUserPassword(email.getAnswer());
-//            log.info("Response : {}", response);
-//
-//            sendQuestion(message.getSession(), response, TEXT);
-//            clearSessionWithSayThanks(message.getSession(), TEXT);
-//
-//            commonPool.removeSessionData(message.getSession());
-//
-//        }
-
-
-
-//        String email1 = commonPool.getUserData(message.getSession(), "email");
-//        // Verify OTP (mock implementation)
-//        boolean isOtpValid = otpService.validateOtp(email1, enteredOtp);
-//
-//        if (isOtpValid) {
-//            // OTP valid, move to confirmation question
-//            sessionIndex.set(3); // Move to "Are you sure" question
-//            nextQuestion = questions.get(sessionIndex.get());
-//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
-//        } else {
-//            // OTP invalid, send error message and retry
-//            sessionIndex.set(2); // Set to invalid OTP message
-//            nextQuestion = questions.get(sessionIndex.get());
-//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
-//
-//            // Move back to OTP entry
-//            sessionIndex.set(1);
-//            nextQuestion = questions.get(sessionIndex.get());
-//            sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
-//        }
 
     }
 
