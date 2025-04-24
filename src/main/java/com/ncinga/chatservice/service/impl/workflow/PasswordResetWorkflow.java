@@ -204,7 +204,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     clearSessionWithSayThanks(message.getSession(), TEXT);
                 }
             } else {
-                log.info("Waradii!");
+                log.info("ERROR");
                 sessionIndex.set(8);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
