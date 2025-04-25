@@ -27,6 +27,8 @@ public class PasswordReset implements IntentWorkflow {
         questions.add(new WorkFlowQuestion("You account has been suspended. Please contact your administrator for further proceedings.", TEXT));
         questions.add(new WorkFlowQuestion("Do you need any further assistance??", TEXT));
         questions.add(new WorkFlowQuestion("The OTP you entered is incorrect. Please try again later!", TEXT));
+        questions.add(new WorkFlowQuestion("Your new password has been sent to your registered mobile number.", TEXT));
+        questions.add(new WorkFlowQuestion("Would you like to see your temporary password?", YES_NO));
         return questions;
     }
 }

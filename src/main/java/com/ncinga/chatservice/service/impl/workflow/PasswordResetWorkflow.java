@@ -66,7 +66,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
                 String correctEmail = message.getMessage();
                 commonPool.removeEmail(message.getSession());
-                log.info("Parana email eka : {}", commonPool.getEmail(message.getSession()));
+                log.info("Old email eka : {}", commonPool.getEmail(message.getSession()));
                 commonPool.addEmail(message.getSession(), correctEmail);
                 String newEmail = commonPool.getEmail(message.getSession());
                 log.info("Email : {}", newEmail);
@@ -121,13 +121,19 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     GoogleRequestUserDto user = googleOperationsService.getUserInfo(email.getAnswer());
                     String phoneNumber = user.getPhoneNumber();
                     smsService.sendMessage(phoneNumber, response);
-                    sendQuestion(message.getSession(), response, TEXT);
-                    clearSessionWithSayThanks(message.getSession(), TEXT);
+                    sessionIndex.set(9);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+
+                    sessionIndex.set(10);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+
 
                 } else {
 
                     String correctEmail = commonPool.getEmail(message.getSession());
-                    log.info("Aluth Email : {}", correctEmail);
+                    log.info("New Email : {}", correctEmail);
                     String response = googleOperationsService.resetUserPassword(correctEmail);
                     log.info("Response : {}", response);
 
@@ -179,13 +185,18 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     GoogleRequestUserDto user = googleOperationsService.getUserInfo(email.getAnswer());
                     String phoneNumber = user.getPhoneNumber();
                     smsService.sendMessage(phoneNumber, response);
-                    sendQuestion(message.getSession(), response, TEXT);
-                    clearSessionWithSayThanks(message.getSession(), TEXT);
+                    sessionIndex.set(9);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+
+                    sessionIndex.set(10);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
 
                 } else {
 
                     String correctEmail = commonPool.getEmail(message.getSession());
-                    log.info("Aluth Email : {}", correctEmail);
+                    log.info("New Email : {}", correctEmail);
                     String response = googleOperationsService.resetUserPassword(correctEmail);
                     log.info("Response : {}", response);
 
@@ -202,6 +213,18 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.set(8);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                clearSessionWithSayThanks(message.getSession(), TEXT);
+            }
+        }
+
+        if(index == 10) {
+            String confirmationAnswer = message.getMessage().trim().toLowerCase();
+            if(confirmationAnswer.equals("yes")) {
+                Question email = commonPool.getAnswerForQuestion(message.getSession(), "0");
+                String response = googleOperationsService.resetUserPassword(email.getAnswer());
+                sendQuestion(message.getSession(), response, TEXT);
+                clearSessionWithSayThanks(message.getSession(), TEXT);
+            }else {
                 clearSessionWithSayThanks(message.getSession(), TEXT);
             }
         }
