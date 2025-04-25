@@ -98,7 +98,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         }
 
         if(index == 1){
-            String enteredOTP = message.getMessage();
+            String enteredOTP = message.getMessage().trim();
             commonPool.addInputOTP(message.getSession(), enteredOTP);
             String inputOTP = commonPool.getInputOTP(message.getSession());
             log.info("Input OTP : {}", inputOTP);
@@ -163,7 +163,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
         if(index == 2) {
             log.info("Removed OTP {}", commonPool.getOTP(message.getSession()));
-            String newOTP = message.getMessage();
+            String newOTP = message.getMessage().trim();
             commonPool.addInputOTP(message.getSession(), newOTP);
             String correctOTP = commonPool.getInputOTP(message.getSession());
             log.info("Corrected OTP : {}", correctOTP);
