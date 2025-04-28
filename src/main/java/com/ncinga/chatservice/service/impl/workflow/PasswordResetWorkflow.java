@@ -29,6 +29,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     private final GoogleOperationsService googleOperationsService;
     private final SMSService smsService;
     private final static String ACCOUNT_SUSPENDED = "Suspended";
+    private final static long OTP_EXPIRATION_TIME = 2 * 60 * 1000;
 
     @Override
     public void execute(AtomicInteger sessionIndex, Message message) {
@@ -64,7 +65,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
                 String correctEmail = message.getMessage();
                 commonPool.removeEmail(message.getSession());
-                log.info("Old email eka : {}", commonPool.getEmail(message.getSession()));
+                log.info("Old email : {}", commonPool.getEmail(message.getSession()));
                 commonPool.addEmail(message.getSession(), correctEmail);
                 String newEmail = commonPool.getEmail(message.getSession());
                 log.info("Email : {}", newEmail);
@@ -87,6 +88,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 String otp = smsService.send(number);
                 log.info("OTP : {}", otp);
                 commonPool.addOTP(message.getSession(), otp);
+                commonPool.addOTPTimestamp(message.getSession(), System.currentTimeMillis());
 
                 sessionIndex.incrementAndGet();
                 nextQuestion = questions.get(sessionIndex.get());
@@ -103,6 +105,19 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
             String generatedOTP = commonPool.getOTP(message.getSession());
             log.info("Generated OTP : {}", generatedOTP);
+
+            long otpTimestamp = commonPool.getOTPTimestamp(message.getSession());
+            long currentTime = System.currentTimeMillis();
+
+            if (currentTime - otpTimestamp > OTP_EXPIRATION_TIME) {
+                // OTP has expired
+                log.info("OTP expired for session: {}", message.getSession());
+                sessionIndex.set(11); // New question index for OTP expiration
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                clearSessionWithSayThanks(message.getSession(), TEXT);
+                return;
+            }
 
             if (generatedOTP.equals(inputOTP)) {
                 log.info("OTP verified!");
@@ -167,6 +182,19 @@ public class PasswordResetWorkflow implements WorkflowProcess {
             log.info("Corrected OTP : {}", correctOTP);
             String givenOTP = commonPool.getOTP(message.getSession());
             log.info("Generated OTP : {}", givenOTP);
+
+            long otpTimestamp = commonPool.getOTPTimestamp(message.getSession());
+            long currentTime = System.currentTimeMillis();
+
+            if (currentTime - otpTimestamp > OTP_EXPIRATION_TIME) {
+                // OTP has expired
+                log.info("OTP expired for session: {}", message.getSession());
+                sessionIndex.set(11); // New question index for OTP expiration
+                nextQuestion = questions.get(sessionIndex.get());
+                sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                clearSessionWithSayThanks(message.getSession(), TEXT);
+                return;
+            }
 
             if (givenOTP.equals(correctOTP)) {
                 log.info("OTP verified for the second time!");

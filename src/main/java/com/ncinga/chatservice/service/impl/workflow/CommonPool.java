@@ -165,4 +165,17 @@ public class CommonPool {
         userResponses.clear();
         log.info("All session-related data cleared.");
     }
+
+    public void addOTPTimestamp(String session, long timestamp) {
+        getUserResponses().get(session).put("otpTimestamp", String.valueOf(timestamp));
+    }
+
+    public long getOTPTimestamp(String session) {
+        try {
+            return Long.parseLong(getUserResponses().get(session).getOrDefault("otpTimestamp", "0").toString());
+        } catch (NumberFormatException e) {
+            log.error("Error parsing OTP timestamp for session: {}", session, e);
+            return 0;
+        }
+    }
 }
