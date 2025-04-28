@@ -42,8 +42,6 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         log.info("message : {}", message);
         commonPool.getUserResponses().putIfAbsent(message.getSession(), new HashMap<>());
         commonPool.getUserResponses().get(message.getSession()).put(questions.get(index).getQuestion(), message.getMessage());
-        // commonPool.addQuestionWithAnswer(message.getSession(), String.valueOf(index), questions.get(index).getQuestion(), message.getMessage());
-
 
         if(index == 0) {
             String email =  message.getMessage().trim();
@@ -230,10 +228,6 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         }
 
 
-    }
-
-    private void clearSession(String session) {
-        commonPool.removeSessionData(session);
     }
 
     private void clearSessionWithSayThanks(String session, String type) {
