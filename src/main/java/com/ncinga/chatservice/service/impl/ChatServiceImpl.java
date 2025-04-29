@@ -30,7 +30,6 @@ public class ChatServiceImpl implements ChatService {
     private final CommonPool commonPool;
     private final LLMService llmService;
 
-    private final PasswordResetService passwordResetService;
     private final UserOnBoardingService userOnBoardingService;
     private final UserOffBoardingService userOffBoardingService;
     private final UnlockUserService unlockUserService;
