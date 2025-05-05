@@ -138,6 +138,10 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
 
+                    sessionIndex.set(12);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+
                     sessionIndex.set(10);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
@@ -212,6 +216,10 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     String phoneNumber = user.getPhoneNumber();
                     smsService.sendMessage(phoneNumber, response);
                     sessionIndex.set(9);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+
+                    sessionIndex.set(12);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
 
