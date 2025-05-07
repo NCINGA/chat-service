@@ -1,8 +1,11 @@
 package com.ncinga.chatservice.service.impl.workflow;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public abstract class Dictionary {
     public static final List<String> GREETS = Arrays.asList("hi", "hey", "dude", "ai", "");
     public static final String AI = "AI";

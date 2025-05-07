@@ -27,6 +27,4 @@ public class AuthenticateController {
 //    public User register(@RequestBody User user) {
 //        return userService.register(user);
 //    }
-
-
 }
