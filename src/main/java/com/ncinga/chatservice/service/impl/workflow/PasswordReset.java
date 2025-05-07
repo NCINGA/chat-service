@@ -32,6 +32,7 @@ public class PasswordReset implements IntentWorkflow {
         questions.add(new WorkFlowQuestion("Would you like to see your temporary password?", YES_NO));
         questions.add(new WorkFlowQuestion("Your OTP has expired. Please try again later!", TEXT));
         questions.add(new WorkFlowQuestion("You will be asked to change your password once you login with the temporary password.", TEXT));
+        questions.add(new WorkFlowQuestion("No phone number found! Please make sure you have a valid phone number linked to your account.", TEXT));
         return questions;
     }
 }

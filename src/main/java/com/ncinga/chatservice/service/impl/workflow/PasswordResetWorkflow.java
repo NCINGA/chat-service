@@ -84,6 +84,13 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 }
 
                 String number = user.getPhoneNumber();
+
+                if (number == null) {
+                    sessionIndex.set(13);
+                    nextQuestion = questions.get(sessionIndex.get());
+                    sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                    clearSessionWithSayThanks(message.getSession(), TEXT);
+                }
                 log.info("Phone number : {}", number);
                 String otp = smsService.send(number);
                 log.info("OTP : {}", otp);
