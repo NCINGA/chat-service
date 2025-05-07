@@ -20,8 +20,8 @@ public class PasswordReset implements IntentWorkflow {
     public List<WorkFlowQuestion> getQuestions() {
         List<WorkFlowQuestion> questions = new ArrayList<>();
         questions.add(new WorkFlowQuestion("Please enter the email of the user you wish to change the password.", TEXT));
-        questions.add(new WorkFlowQuestion("An OTP has been sent to your registered mobile number. OTP is only valid for two minutes. Please enter the 4-digit OTP to verify your identity.", TEXT));
-        questions.add(new WorkFlowQuestion("Invalid OTP, please try again!", TEXT));
+        questions.add(new WorkFlowQuestion("An OTP has been sent to your registered mobile number. OTP is only valid for two minutes. You only have two attempts to enter the correct OTP. Please enter the 4-digit OTP to verify your identity.", TEXT));
+        questions.add(new WorkFlowQuestion("Invalid OTP, please try again! You have one more attempt", TEXT));
         questions.add(new WorkFlowQuestion("OTP verified! Your password has been changed", TEXT));
         questions.add(new WorkFlowQuestion("Processing....", TEXT));
         questions.add(new WorkFlowQuestion("Invalid Email, please try again!", TEXT));

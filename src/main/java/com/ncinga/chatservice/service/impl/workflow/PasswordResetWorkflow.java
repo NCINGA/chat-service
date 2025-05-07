@@ -134,6 +134,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     GoogleRequestUserDto user = googleOperationsService.getUserInfo(email.getAnswer());
                     String phoneNumber = user.getPhoneNumber();
                     smsService.sendMessage(phoneNumber, response);
+                    commonPool.addResponse(message.getSession(), response);
+
+
                     sessionIndex.set(9);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
@@ -151,11 +154,16 @@ public class PasswordResetWorkflow implements WorkflowProcess {
 
                     String correctEmail = commonPool.getEmail(message.getSession());
                     log.info("New Email : {}", correctEmail);
-                    String response = googleOperationsService.resetUserPassword(correctEmail);
-                    log.info("Response : {}", response);
+                    String response2 = googleOperationsService.resetUserPassword(correctEmail);
 
-                    smsService.send(response);
-                    sendQuestion(message.getSession(), response, TEXT);
+                    smsService.send(response2);
+
+                    commonPool.removeResponse(message.getSession());
+                    commonPool.addResponse(message.getSession(), response2);
+
+                    log.info("Response2 : {}", response2);
+
+                    sendQuestion(message.getSession(), response2, TEXT);
                     clearSessionWithSayThanks(message.getSession(), TEXT);
 
                     log.error("No valid email found for password reset");
@@ -215,6 +223,10 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     GoogleRequestUserDto user = googleOperationsService.getUserInfo(email.getAnswer());
                     String phoneNumber = user.getPhoneNumber();
                     smsService.sendMessage(phoneNumber, response);
+
+                    commonPool.removeResponse(message.getSession());
+                    commonPool.addResponse(message.getSession(), response);
+
                     sessionIndex.set(9);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
@@ -235,6 +247,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     log.info("Response : {}", response);
 
                     smsService.send(response);
+                    commonPool.removeResponse(message.getSession());
+                    commonPool.addResponse(message.getSession(), response);
+
                     sendQuestion(message.getSession(), response, TEXT);
                     clearSessionWithSayThanks(message.getSession(), TEXT);
 
@@ -254,8 +269,8 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         if(index == 10) {
             String confirmationAnswer = message.getMessage().trim().toLowerCase();
             if(confirmationAnswer.equals("yes")) {
-                Question email = commonPool.getAnswerForQuestion(message.getSession(), "0");
-                String response = googleOperationsService.resetUserPassword(email.getAnswer());
+                String response = commonPool.getResponse(message.getSession());
+                log.info("THE FINAL RESPONSE : {}", response);
                 sendQuestion(message.getSession(), response, TEXT);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
             }else {
