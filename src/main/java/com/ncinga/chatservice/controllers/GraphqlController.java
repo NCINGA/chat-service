@@ -172,8 +172,18 @@ public class GraphqlController {
         return smsService.generateOTP();
     }
 
-    @MutationMapping(name = "send")
-    public String send(@Argument String number) {
-        return smsService.send(number);
+//    @MutationMapping(name = "send")
+//    public String send(@Argument String number) {
+//        return smsService.send(number);
+//    }
+
+    @MutationMapping(name = "sendOtp")
+    public String sendOtp(@Argument String number) {
+        return smsService.sendOtp(number);
+    }
+
+    @MutationMapping(name = "sendSMS")
+    public String sendSMS(@Argument String number,@Argument String message) {
+        return smsService.sendMessage(number, message);
     }
 }

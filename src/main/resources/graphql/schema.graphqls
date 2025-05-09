@@ -29,7 +29,9 @@ type Mutation{
     disableGoogleUser(userEmail: String!): String!
     deleteGoogleUser(userEmail: String!): String!
     createGoogleUser(firstName: String!, lastName: String!, email: String!, password: String!): String!
-    send(number: String!): String!
+#    send(number: String!): String!
+    sendOtp(number: String!): String!
+    sendSMS(number: String!, message: String!): String!
 }
 
 #input UserData {

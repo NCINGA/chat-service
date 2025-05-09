@@ -92,7 +92,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     clearSessionWithSayThanks(message.getSession(), TEXT);
                 }
                 log.info("Phone number : {}", number);
-                String otp = smsService.send(number);
+                String otp = smsService.sendOtp(number);
                 log.info("OTP : {}", otp);
                 commonPool.addOTP(message.getSession(), otp);
                 commonPool.addOTPTimestamp(message.getSession(), System.currentTimeMillis());
@@ -163,7 +163,10 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     log.info("New Email : {}", correctEmail);
                     String response2 = googleOperationsService.resetUserPassword(correctEmail);
 
-                    smsService.send(response2);
+                    GoogleRequestUserDto user = googleOperationsService.getUserInfo(email.getAnswer());
+                    String phoneNumber = user.getPhoneNumber();
+
+                    smsService.sendMessage(phoneNumber,response2);
 
                     commonPool.removeResponse(message.getSession());
                     commonPool.addResponse(message.getSession(), response2);
@@ -253,7 +256,11 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     String response = googleOperationsService.resetUserPassword(correctEmail);
                     log.info("Response : {}", response);
 
-                    smsService.send(response);
+                    GoogleRequestUserDto user = googleOperationsService.getUserInfo(email.getAnswer());
+                    String phoneNumber = user.getPhoneNumber();
+
+                    smsService.sendMessage(phoneNumber,response);
+
                     commonPool.removeResponse(message.getSession());
                     commonPool.addResponse(message.getSession(), response);
 

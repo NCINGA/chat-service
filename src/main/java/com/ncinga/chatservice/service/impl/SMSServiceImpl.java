@@ -1,8 +1,6 @@
 package com.ncinga.chatservice.service.impl;
 
-import com.ncinga.chatservice.dto.TokenResponse;
 import com.ncinga.chatservice.service.SMSService;
-import com.ncinga.chatservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,19 +9,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SMSServiceImpl implements SMSService {
-    private final TokenService tokenService;
     private final RestTemplate restTemplate;
 
     @Value("${sms.service.url}")
     private String url;
+
+    @Value("${sms.service.url}")
+    private String apiUrl;
+
+    @Value("${sms.server.key}")
+    private String serverKey;
 
     @Override
     public String generateOTP() {
@@ -35,57 +36,67 @@ public class SMSServiceImpl implements SMSService {
         }
         return String.valueOf(otp);
     }
+
     @Override
-    public String send(String number) {
-        try {
+    public String sendOtp(String number) {
+        try{
             String otp = generateOTP();
-            TokenResponse tokenResponse = tokenService.getAuthToken();
-            Map<String, Object> payload = new HashMap<>();
-            String otpMessage  = "Your OTP is " + otp;
-            payload.put("phone_number", number);
-            payload.put("message_body", otpMessage);
+            String message = "Dear User, please use the following One-Time Password (OTP) to recover your NCINGA email account " + otp;
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(tokenResponse.getAccessToken());
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            String fullUrl = apiUrl +
+                    "?esmsqk=" + serverKey +
+                    "&list=" + number +
+                    "&message=" + message;
 
-            HttpEntity<Object> entity = new HttpEntity<>(payload, headers);
-            log.info("Request : {}", entity.getBody());
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
-            log.info("Response : {}", response);
+            // Send the GET request
+            ResponseEntity<String> response = restTemplate.getForEntity(fullUrl, String.class);
+
+            // Check the response
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("SMS sent successfully!");
+                System.out.println("Response: " + response.getBody());
+            } else {
+                System.out.println("Failed to send SMS.");
+                System.out.println("Status code: " + response.getStatusCodeValue());
+                System.out.println("Response: " + response.getBody());
+            }
+
+            log.info("Response : {}", response.getBody());
             return otp;
-
-        } catch (RestClientException e) {
+        }catch (RestClientException e){
             log.error("Error during REST call: {}", e.getMessage());
-        } catch (Exception e) {
-            log.error("Unexpected error: {}", e.getMessage());
         }
         return "error";
     }
 
     @Override
-    public String sendMessage(String number, String message){
-        try {
-            TokenResponse tokenResponse = tokenService.getAuthToken();
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("phone_number", number);
-            payload.put("message_body", message);
+    public String sendMessage(String number, String message1) {
+        try{
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(tokenResponse.getAccessToken());
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            String fullUrl = apiUrl +
+                    "?esmsqk=" + serverKey +
+                    "&list=" + number +
+                    "&message=" + message1;
 
-            HttpEntity<Object> entity = new HttpEntity<>(payload, headers);
-            log.info("Request : {}", entity.getBody());
-            ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST, entity, Object.class);
-            log.info("Response : {}", response);
-            return message;
+            // Send the GET request
+            ResponseEntity<String> response = restTemplate.getForEntity(fullUrl, String.class);
 
-        } catch (RestClientException e) {
+            // Check the response
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("SMS sent successfully!");
+                System.out.println("Response: " + response.getBody());
+            } else {
+                System.out.println("Failed to send SMS.");
+                System.out.println("Status code: " + response.getStatusCodeValue());
+                System.out.println("Response: " + response.getBody());
+            }
+
+            log.info("Response : {}", response.getBody());
+            return message1;
+        }catch (RestClientException e){
             log.error("Error during REST call: {}", e.getMessage());
-        } catch (Exception e) {
-            log.error("Unexpected error: {}", e.getMessage());
-        }
+
+   }
         return "error";
     }
 

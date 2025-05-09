@@ -29,6 +29,7 @@ public abstract class Dictionary {
     public static final String PASSWORD = "password";
     public static final String PROBLEM = "problem";
     public static final String YES_NO = "yes_no";
+    public static final String SHOW_PASSWORD = "show_password";
     public static final String YES = "yes";
     public static final String NO = "no";
 }
