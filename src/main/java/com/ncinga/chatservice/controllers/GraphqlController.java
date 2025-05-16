@@ -37,6 +37,7 @@ public class GraphqlController {
     private final AzureADService azureADService;
     private final JwtService jwtService;
     private final SMSService smsService;
+    private final EmailService emailService;
 
     @QueryMapping(name = "ping")
     public String ping() {
@@ -185,5 +186,15 @@ public class GraphqlController {
     @MutationMapping(name = "sendSMS")
     public String sendSMS(@Argument String number,@Argument String message) {
         return smsService.sendMessage(number, message);
+    }
+
+    @MutationMapping(name = "sendEmail")
+    public String sendEmail(@Argument String to, @Argument String body) {
+        return emailService.sendEmail(to, body);
+    }
+
+    @MutationMapping(name = "sendAnotherEmail")
+    public String sendAnotherEmail(@Argument String receiver, @Argument String body) {
+        return emailService.sendAnotherEmail(receiver, body);
     }
 }

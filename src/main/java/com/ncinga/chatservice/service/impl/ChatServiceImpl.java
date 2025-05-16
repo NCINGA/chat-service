@@ -36,6 +36,7 @@ public class ChatServiceImpl implements ChatService {
     private final GetUserByEmailService getUserByEmailService;
     private final GoogleOperationsService googleOperationsService;
     private final SMSService smsService;
+    private final EmailService emailService;
 
     private List<WorkFlowQuestion> questions = new ArrayList<>();
     AtomicReference<String> intent = new AtomicReference<>("");
@@ -75,7 +76,7 @@ public class ChatServiceImpl implements ChatService {
                 return;
             }
         }
-        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(llmService, intent.get(), chatSinkManager, commonPool, questions, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService, googleOperationsService, smsService);
+        workflowProcess = WorkflowProcessFactory.getWorkflowProcess(llmService, intent.get(), chatSinkManager, commonPool, questions, userOnBoardingService, userOffBoardingService, unlockUserService, getUserByEmailService, googleOperationsService, smsService, emailService);
         workflowProcess.execute(sessionIndex, message);
     }
 
