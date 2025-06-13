@@ -5,6 +5,7 @@ import com.ncinga.chatservice.dto.GoogleRequestUserDto;
 import com.ncinga.chatservice.dto.Message;
 import com.ncinga.chatservice.dto.Question;
 import com.ncinga.chatservice.dto.WorkFlowQuestion;
+import com.ncinga.chatservice.service.EmailService;
 import com.ncinga.chatservice.service.GoogleOperationsService;
 import com.ncinga.chatservice.service.PasswordResetService;
 import com.ncinga.chatservice.service.SMSService;
@@ -30,6 +31,8 @@ public class PasswordResetWorkflow implements WorkflowProcess {
     private final SMSService smsService;
     private final static String ACCOUNT_SUSPENDED = "Suspended";
     private final static long OTP_EXPIRATION_TIME = 2 * 60 * 1000;
+    private final EmailService emailService;
+    String emailSender = "gayan.dissanayake@ncinga.net";
 
     @Override
     public void execute(AtomicInteger sessionIndex, Message message) {
@@ -89,6 +92,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                     sessionIndex.set(13);
                     nextQuestion = questions.get(sessionIndex.get());
                     sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                    String body = "Your password reset attempt failed. Could not find a valid phone number linked to your account.";
+                    String to = commonPool.getEmail(message.getSession());
+                    confirmationEmail(emailSender, to, body);
                     clearSessionWithSayThanks(message.getSession(), TEXT);
                 }
                 log.info("Phone number : {}", number);
@@ -122,6 +128,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.set(11); // New question index for OTP expiration
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                String body = "Your password reset attempt failed. Session expired.";
+                String to = commonPool.getEmail(message.getSession());
+                confirmationEmail(emailSender, to, body);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
                 return;
             }
@@ -185,9 +194,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.set(2);
                 log.error("OTP not verified!");
 
-                // Fix 1: Clear the input OTP properly before requesting a new one
                 commonPool.getUserResponses().get(message.getSession()).remove("inputOTP"); // Alternative removal approach
-                // Or implement a more direct approach in the CommonPool class
 
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
@@ -214,6 +221,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.set(11); // New question index for OTP expiration
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                String body = "Your password reset attempt failed. Session expired.";
+                String to = commonPool.getEmail(message.getSession());
+                confirmationEmail(emailSender, to, body);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
                 return;
             }
@@ -276,6 +286,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 sessionIndex.set(8);
                 nextQuestion = questions.get(sessionIndex.get());
                 sendQuestion(message.getSession(), nextQuestion.getQuestion(), nextQuestion.getInputType());
+                String body = "Your password reset attempt failed. Incorrect OTP.";
+                String to = commonPool.getEmail(message.getSession());
+                confirmationEmail(emailSender, to, body);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
             }
         }
@@ -286,8 +299,14 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 String response = commonPool.getResponse(message.getSession());
                 log.info("THE FINAL RESPONSE : {}", response);
                 sendQuestion(message.getSession(), response, TEXT);
+                String body = "Your password reset attempt was successful. Your password has been sent to your registered mobile number.";
+                String to = commonPool.getEmail(message.getSession());
+                confirmationEmail(emailSender, to, body);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
             }else {
+                String body = "Your password reset attempt was successful. Your password has been sent to your registered mobile number.";
+                String to = commonPool.getEmail(message.getSession());
+                confirmationEmail(emailSender, to, body);
                 clearSessionWithSayThanks(message.getSession(), TEXT);
             }
         }
@@ -305,5 +324,9 @@ public class PasswordResetWorkflow implements WorkflowProcess {
         Message questionMessage = new Message(session, Dictionary.AI, question, new Date().getTime(), type);
         chatSinkManager.getChatSink().get(session).tryEmitNext(questionMessage);
         log.info("Sent question to {}: {}", session, question);
+    }
+
+    private void confirmationEmail(String from, String to, String body) {
+        String confirmationAnswer = emailService.sendAnotherEmail(to, body);
     }
 }

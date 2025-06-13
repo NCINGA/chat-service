@@ -32,6 +32,8 @@ type Mutation{
 #    send(number: String!): String!
     sendOtp(number: String!): String!
     sendSMS(number: String!, message: String!): String!
+    sendEmail(to: String!,body: String!): String!
+    sendAnotherEmail(receiver: String!,body: String!): String!
 }
 
 #input UserData {
