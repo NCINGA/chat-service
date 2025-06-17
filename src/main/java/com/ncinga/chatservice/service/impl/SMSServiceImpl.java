@@ -61,11 +61,11 @@ public class SMSServiceImpl implements SMSService {
             // Check the response
             if (response.getStatusCode().is2xxSuccessful()) {
                 System.out.println("SMS sent successfully!");
-                System.out.println("Response: " + response.getBody());
+                //System.out.println("Response: " + response.getBody());
             } else {
                 System.out.println("Failed to send SMS.");
-                System.out.println("Status code: " + response.getStatusCodeValue());
-                System.out.println("Response: " + response.getBody());
+                //System.out.println("Status code: " + response.getStatusCodeValue());
+                //System.out.println("Response: " + response.getBody());
             }
 
             log.info("Response : {}", response.getBody());

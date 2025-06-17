@@ -99,7 +99,7 @@ public class PasswordResetWorkflow implements WorkflowProcess {
                 }
                 log.info("Phone number : {}", number);
                 String otp = smsService.sendOtp(number);
-                log.info("OTP : {}", otp);
+                //log.info("OTP : {}", otp);
                 commonPool.addOTP(message.getSession(), otp);
                 commonPool.addOTPTimestamp(message.getSession(), System.currentTimeMillis());
 

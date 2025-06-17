@@ -38,7 +38,7 @@ public class CommonPool {
     }
 
     public void addOTP(String session, String otp) {
-        log.info("Adding OTP for session '{}': otp = '{}'", session, otp);
+        log.info("Adding OTP for session '{}'", session);
         userOTPPool.put(session, otp);
     }
 

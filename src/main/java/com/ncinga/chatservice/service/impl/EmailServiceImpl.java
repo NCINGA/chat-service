@@ -29,9 +29,9 @@ public class EmailServiceImpl implements EmailService {
 
     public String sendEmail(String to, String body) {
 
-        String subject = "Ncinga Helpdesk Password Reset";
+        String subject = "NCINGA Helpdesk Password Reset";
         String sender = "gayan.dissanayake@ncinga.net";
-        String ccEmail = "damiru.399@gmail.com";
+        String ccEmail = "abhisheka.meegalla@ncinga.net";
 
         SimpleMailMessage message = new SimpleMailMessage();
 
@@ -47,7 +47,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     public String sendAnotherEmail(String receiver, String body) {
-        String senderName = "Ncinga Helpdesk";
+        String senderName = "NCINGA Helpdesk";
         String senderEmail = "support@ncinga.net";
         String subject = "Ncinga Helpdesk Password Reset";
         String url = "https://api.sendinblue.com/v3/smtp/email";
@@ -63,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
 
         List<Map<String, String>> cc = new ArrayList<>();
         Map<String, String> ccEmail = new HashMap<>();
-        ccEmail.put("email", "damiru.399@gmail.com");
+        ccEmail.put("email", "abhisheka.meegalla@ncinga.net");
         cc.add(ccEmail);
 
         EmailRequestDto emailRequest = new EmailRequestDto(sender, to, cc, subject, body);
