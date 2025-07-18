@@ -37,6 +37,7 @@ public class FaqQuery implements IntentWorkflow {
                     .sessionId(message.getSession() != null ? message.getSession() : "default")
                     .collectionName(defaultCollection)
                     .k(defaultK)
+                    .useContext(message.getSession() != null && !message.getSession().equals("default"))
                     .build();
 
             FaqResponse faqResponse = faqService.queryFaq(faqRequest);
@@ -79,3 +80,4 @@ public class FaqQuery implements IntentWorkflow {
         return new ArrayList<>();
     }
 }
+

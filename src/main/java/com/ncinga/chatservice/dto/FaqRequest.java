@@ -20,4 +20,7 @@ public class FaqRequest {
     private String collectionName;
 
     private Integer k;
+
+    @JsonProperty("use_context")
+    private Boolean useContext;
 }
