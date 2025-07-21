@@ -19,7 +19,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.EMPLOYEE_ONBOARDING;
 import static com.ncinga.chatservice.service.impl.workflow.Dictionary.KB_ARTICLE_ASSISTANCE;
+import static com.ncinga.chatservice.service.impl.workflow.Dictionary.RESET_PASSWORD;
 import static com.ncinga.chatservice.service.impl.workflow.Dictionary.TEXT;
 
 @Service
@@ -66,6 +68,14 @@ public class ChatServiceImpl implements ChatService {
             log.info("Detected intent: {}", response.getIntent());
             intent.set(response.getIntent());
             IntentWorkflow intentWorkflow = IntentFactory.getIntent(response.getIntent());
+
+            if (!response.getIntent().equalsIgnoreCase(RESET_PASSWORD) &&
+                !response.getIntent().equalsIgnoreCase(EMPLOYEE_ONBOARDING)) {
+                Message faqResponse = intentWorkflow.conversation(message);
+                sendQuestion(message.getSession(), faqResponse.getMessage(), TEXT);
+                return;
+            }
+
             questions = intentWorkflow.getQuestions();
             if (response.getIntent().equalsIgnoreCase(KB_ARTICLE_ASSISTANCE)) {
                 log.info("Unknown intent detected");
